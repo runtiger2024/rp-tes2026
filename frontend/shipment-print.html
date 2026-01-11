@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <title>列印集運單 - 小跑豬物流</title>
+    <link rel="stylesheet" href="css/theme-client.css" />
+    <style>
+      body {
+        background: #fff;
+        padding: 40px;
+      }
+      .print-container {
+        max-width: 800px;
+        margin: 0 auto;
+        border: 1px solid #000;
+        padding: 20px;
+      }
+      .print-header {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 2px solid #000;
+        padding-bottom: 10px;
+      }
+      @media print {
+        .no-print {
+          display: none;
+        }
+        body {
+          padding: 0;
+        }
+        .print-container {
+          border: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="no-print" style="margin-bottom: 20px; text-align: right">
+      <button onclick="window.print()" class="btn-primary">確認列印</button>
+    </div>
+
+    <div class="print-container" id="print-area">
+      <div class="print-header">
+        <h2>小跑豬集運訂單單據</h2>
+        <div id="print-shipment-no">#載入中...</div>
+      </div>
+      <div class="print-body mt-20">
+        <table class="app-table"></table>
+        <div class="package-details mt-30">
+          <h4>📦 包含包裹明細</h4>
+          <div id="print-package-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { apiClient } from "./assets/js/api/apiClient.js";
+      // 抓取 URL 中的 ID 並自動填充資料
+    </script>
+  </body>
+</html>

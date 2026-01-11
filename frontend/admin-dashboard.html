@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>小跑豬營運中心 | 專業物流管理</title>
+    <link rel="icon" href="assets/logo.png" type="image/png" />
+    <link rel="stylesheet" href="css/admin-modern.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="sidebar-placeholder"></div>
+
+      <div id="content-wrapper" class="d-flex flex-column">
+        <nav
+          id="topbar-placeholder"
+          class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow"
+        ></nav>
+
+        <div class="container-fluid">
+          <div
+            class="d-sm-flex align-items-center justify-content-between mb-4"
+          >
+            <h1 class="h3 mb-0 text-gray-800">營運總覽儀表板</h1>
+            <button
+              class="btn btn-sm btn-primary shadow-sm"
+              onclick="window.printReport()"
+            >
+              <i class="fas fa-download fa-sm text-white-50"></i> 產生報表
+            </button>
+          </div>
+
+          <div class="row" id="admin-stats-row"></div>
+
+          <div class="row">
+            <div class="col-xl-8 col-lg-7">
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">營收趨勢圖</div>
+                <div class="card-body">
+                  <canvas id="revenueChart"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-4 col-lg-5">
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">待處理清單</div>
+                <div class="card-body" id="pending-tasks-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/apiConfig.js"></script>
+    <script type="module">
+      import { adminApi } from "./src/api/admin.api.js";
+      import { ui } from "./assets/js/utils/ui-helper.js";
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        // A. 加載管理端佈局 (側邊欄、頂欄、權限檢查)
+        // 需確保 admin-layout.js 已經 module 化
+        import("./js/admin-layout.js");
+
+        // B. 初始化數據
+        try {
+          const stats = await adminApi.getDashboardStats();
+          renderStats(stats);
+        } catch (e) {
+          console.error("Dashboard數據加載失敗", e);
+        }
+      });
+    </script>
+  </body>
+</html>

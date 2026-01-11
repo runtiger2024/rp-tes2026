@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>財務與儲值審核 - 小跑豬後台</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/admin-modern.css" />
+    <link rel="stylesheet" href="css/modals-unified.css" />
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="sidebar-placeholder"></div>
+      <div id="content-wrapper" class="d-flex flex-column">
+        <div class="container-fluid mt-4">
+          <h1 class="page-title">財務與儲值管理</h1>
+
+          <div class="row mb-4" id="finance-summary-row"></div>
+
+          <div class="card shadow">
+            <div class="card-header bg-white py-3">
+              <h6 class="m-0 font-weight-bold text-primary">待審核儲值申請</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="modern-table">
+                  <thead>
+                    <tr>
+                      <th>日期</th>
+                      <th>會員編號</th>
+                      <th>姓名</th>
+                      <th>申請金額</th>
+                      <th>憑證預覽</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="deposit-review-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/apiConfig.js"></script>
+    <script type="module">
+      import { financeModule } from "./assets/js/modules/m-finance.js";
+      import "./js/admin-layout.js";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        financeModule.initFinanceDashboard();
+      });
+    </script>
+  </body>
+</html>

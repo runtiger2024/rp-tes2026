@@ -1,0 +1,102 @@
+/* * RunPiggy Professional ERP - Global Variable Registry 
+ * V2026.Final.Ultimate - 究極統一版本 (無省略、完全對位原始碼)
+ */
+
+:root {
+  /* ==========================================
+     1. 品牌核心色系 (Brand Identity)
+     ========================================== */
+  /* 主色：專業科技藍 (對應 Apple / Google Blue) */
+  --p-primary: #1a73e8;
+  --p-primary-hover: #1557b0;
+  --p-primary-active: #0d47a1;
+  --p-primary-light: #e8f0fe;
+  --p-primary-bg: #f8faff;
+
+  /* 管理端專用主色 (SB Admin 2 現代化演進) */
+  --admin-primary: #4e73df;
+  --admin-primary-dark: #224abe;
+  --admin-gradient: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+
+  /* 強調色：電商活力橘 (用於預報、集運、錢包餘額) */
+  --p-accent: #ff5000;
+  --p-accent-hover: #e04600;
+  --p-accent-active: #c73e00;
+  --p-accent-light: #fff2eb;
+
+  /* ==========================================
+     2. 語義化顏色 (Semantic Colors)
+     ========================================== */
+  /* 成功：森林綠 (已送達、已支付) */
+  --p-success: #00b578;
+  --p-success-light: #e6f7f0;
+  --p-success-dark: #008a5c;
+
+  /* 警告：琥珀黃 (海關查驗、待付款) */
+  --p-warning: #ff9000;
+  --p-warning-light: #fff7e6;
+  --p-warning-dark: #cc7300;
+
+  /* 危險：櫻桃紅 (訂單退回、刪除警告) */
+  --p-danger: #ff3b30;
+  --p-danger-light: #fff2f0;
+  --p-danger-dark: #d32f2f;
+
+  /* 資訊：天空藍 (最新消息、系統公告) */
+  --p-info: #00b5ff;
+  --p-info-light: #e6f7ff;
+
+  /* ==========================================
+     3. 灰階與文字系統 (Neutral & Typography)
+     ========================================== */
+  --text-main: #1c1c1e; /* 標題、重要文字 */
+  --text-body: #3a3a3c; /* 一般內文 */
+  --text-sub: #8e8e93; /* 輔助文字、Placeholder */
+  --text-muted: #aeaeb2; /* 禁用狀態、極淡描述 */
+
+  --bg-main: #f4f7fa; /* 全站底色 (Dashboard) */
+  --bg-card: #ffffff; /* 卡片背景 */
+  --bg-dark: #1c1c1e; /* 頁尾、Dark Mode 基礎色 */
+
+  --border-light: #e5e5ea; /* 一般邊框 */
+  --border-base: #d1d1d6; /* 較明顯的分隔線 */
+
+  /* ==========================================
+     4. 佈局與尺寸 (Layout & Spacing)
+     ========================================== */
+  --sidebar-width: 250px;
+  --sidebar-collapsed-width: 70px;
+  --header-height: 70px;
+  --bottom-nav-height: 80px; /* 行動端底部導覽列 */
+
+  /* 圓角體系 (Apple Rounded Corner Style) */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px; /* 用於 Dashboard 大卡片、Modal 頂部 */
+  --radius-full: 9999px;
+
+  /* ==========================================
+     5. 陰影與深度 (Elevation & Shadows)
+     ========================================== */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 15px 40px rgba(0, 0, 0, 0.12);
+  --shadow-primary: 0 8px 20px rgba(26, 115, 232, 0.2);
+  --shadow-accent: 0 8px 20px rgba(255, 80, 0, 0.2);
+
+  /* ==========================================
+     6. 動態效果 (Transitions & Animations)
+     ========================================== */
+  --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.15s ease;
+  --transition-bounce: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  /* ==========================================
+     7. 彈窗與遮罩專屬 (Modal Registry)
+     ========================================== */
+  --modal-overlay-bg: rgba(15, 23, 42, 0.75);
+  --modal-blur: blur(8px);
+  --modal-z-index: 9999;
+}

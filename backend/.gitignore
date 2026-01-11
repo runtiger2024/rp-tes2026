@@ -1,0 +1,6 @@
+# 忽略 Node.js 的依賴包資料夾
+node_modules/
+
+# 忽略後端的環境變數檔案 (儲存機密金鑰)
+backend/.envbackend/.env
+backend/.env

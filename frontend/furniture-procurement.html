@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>傢俱代採購服務 | 小跑豬傢俱專線</title>
+    <link rel="icon" href="assets/logo.png" type="image/png" />
+    <link rel="stylesheet" href="css/theme-client.css" />
+    <link rel="stylesheet" href="css/modals-unified.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="js/styleLoader.js"></script>
+    <style>
+      .calculation-box {
+        background: linear-gradient(
+          135deg,
+          #ffffff 0%,
+          var(--p-primary-bg) 100%
+        ) !important;
+        border: 2px solid var(--p-primary-light) !important;
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body class="dashboard-theme">
+    <div class="app-layout-wrapper">
+      <header class="section-header-nav">
+        <button class="btn-back" onclick="location.href='dashboard.html'">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <h3>家具代採購申請</h3>
+      </header>
+
+      <div class="main-content-scrollable">
+        <div class="card animate-slide-up">
+          <form id="furniture-apply-form">
+            <div class="form-group">
+              <label class="required">家具商品連結 / 圖片</label>
+              <input
+                type="url"
+                id="fur-url"
+                class="form-control"
+                placeholder="請貼上淘寶/天貓商品網址"
+                required
+              />
+            </div>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="required">商品總價 (RMB)</label>
+                <input
+                  type="number"
+                  id="fur-price-rmb"
+                  class="form-control"
+                  step="0.01"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>數量</label>
+                <input
+                  type="number"
+                  id="fur-quantity"
+                  class="form-control"
+                  value="1"
+                  min="1"
+                />
+              </div>
+            </div>
+
+            <div class="calculation-box">
+              <div class="calc-row">
+                <span>目前匯率參考：</span
+                ><strong id="ui-exchange-rate">4.65</strong>
+              </div>
+              <div class="calc-row highlight">
+                <span>預估折合台幣：</span
+                ><strong id="ui-total-twd">NT$ 0</strong>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="btn-primary-block mt-20"
+              id="btn-submit-furniture"
+            >
+              <span>提交採購需求</span> <i class="fas fa-paper-plane"></i>
+            </button>
+          </form>
+        </div>
+
+        <div
+          class="history-section mt-30 animate-slide-up"
+          style="animation-delay: 0.1s"
+        >
+          <h4 class="section-title">我的代購紀錄</h4>
+          <div class="table-responsive">
+            <table class="app-table">
+              <thead>
+                <tr>
+                  <th>申請日期</th>
+                  <th>金額 (RMB)</th>
+                  <th>目前狀態</th>
+                  <th class="text-right">操作</th>
+                </tr>
+              </thead>
+              <tbody id="furniture-history-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav id="mobile-bottom-nav" class="universal-bottom-nav"></nav>
+
+    <script type="module">
+      import { furnitureModule } from "./assets/js/modules/furniture.js";
+      import { layoutEngine } from "./assets/js/core/layout-engine.js";
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        await layoutEngine.loadCommonComponents();
+        furnitureModule.initApplyPage();
+      });
+    </script>
+  </body>
+</html>

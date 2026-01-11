@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <title>小跑豬運費估價單 - 官方線上核價</title>
+    <link rel="icon" href="assets/logo.png" type="image/png" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/quote-rich.css" />
+    <link rel="stylesheet" href="css/modals-unified.css" />
+  </head>
+  <body class="quote-page">
+    <div class="quote-wrapper animate-fade-in">
+      <header class="quote-header">
+        <div class="brand-info">
+          <img src="assets/logo.png" alt="Logo" class="logo" />
+          <div class="brand-text">
+            <h1>小跑豬國際物流</h1>
+            <span>專業大型家具海運專線</span>
+          </div>
+        </div>
+        <div class="quote-badge">官方核價單</div>
+      </header>
+
+      <main class="quote-content">
+        <div id="loading-spinner" class="state-container">
+          <div class="spinner"></div>
+          <p>正在從雲端安全載入計費公式...</p>
+        </div>
+
+        <div
+          id="results-container"
+          class="results-grid"
+          style="display: none"
+        ></div>
+
+        <div
+          id="error-message"
+          class="alert alert-error"
+          style="display: none"
+        ></div>
+      </main>
+
+      <footer class="quote-footer">
+        <div class="notice-box">
+          <h4><i class="fas fa-info-circle"></i> 重要提醒</h4>
+          <ul>
+            <li>此估價根據您提供的尺寸計算，實際費用以倉庫實測為準。</li>
+            <li>若貨物單件超過 100kg 或長度超過 300cm，將產生超限手續費。</li>
+          </ul>
+        </div>
+        <div class="action-group">
+          <a href="index.html" class="btn-secondary"
+            ><i class="fas fa-redo"></i> 重新計算</a
+          >
+          <a href="login.html" class="btn-primary"
+            >立即註冊預報 <i class="fas fa-arrow-right"></i
+          ></a>
+        </div>
+      </footer>
+    </div>
+
+    <script type="module">
+      import { apiClient } from "./assets/js/api/apiClient.js";
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const weight = urlParams.get("w");
+        const length = urlParams.get("l");
+        // ...擷取其餘參數並呼叫 API 渲染結果
+      });
+    </script>
+  </body>
+</html>

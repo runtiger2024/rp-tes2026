@@ -1,0 +1,321 @@
+// backend/prisma/schema.prisma
+// V18.0 - 旗艦級專業物流 ERP 優化版
+// 強化重點：財務事務追蹤、物流分級引擎、報關實名制欄位、多幣別匯率架構
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // 建議使用 PostgreSQL 以支援高度併發
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// --- 1. 使用者與權限管理 ---
+// ==========================================
+model User {
+  id                  String   @id @default(cuid())
+  piggyId             String?  @unique // RP00001 格式
+  email               String   @unique
+  passwordHash        String?
+  name                String?
+  phone               String?
+  defaultAddress      String?
+  lineUserId          String?  @unique
+  role                Role     @default(USER) // USER, ADMIN, WAREHOUSE, FINANCE
+  
+  // 會員等級 (與 Tier 關聯)
+  tierId              String?
+  tier                Tier?    @relation(fields: [tierId], references: [id])
+
+  // 財務與點數總覽
+  balance             Float    @default(0)
+  points              Int      @default(0)
+
+  // 帳號狀態
+  isActive            Boolean  @default(true)
+  resetPasswordToken  String?
+  resetPasswordExpire DateTime?
+
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // 關聯
+  packages            Package[]
+  shipments           Shipment[]
+  transactions        WalletTransaction[]
+  pointLogs           PointLog[]
+  coupons             UserCoupon[]
+  declarants          Declarant[]
+  activityLogs        ActivityLog[]
+  notifications       Notification[]
+
+  @@index([piggyId])
+  @@index([lineUserId])
+}
+
+enum Role {
+  USER
+  ADMIN
+  WAREHOUSE
+  FINANCE
+}
+
+// ==========================================
+// --- 2. 會員等級與折扣系統 ---
+// ==========================================
+model Tier {
+  id                String   @id @default(cuid())
+  name              String   @unique // 如：普通會員, 黃金會員, 鑽石會員
+  level             Int      @default(0)
+  thresholdAmount   Float    @default(0)   // 升級所需的累計消費額
+  discountRate      Float    @default(1.0) // 運費折扣，例如 0.95 代表 95 折
+  pointMultiplier   Float    @default(1.0) // 點數回饋倍率
+  priority          Int      @default(0)   // 處理優先順序
+  users             User[]
+}
+
+// ==========================================
+// --- 3. 倉儲與包裹預報系統 ---
+// ==========================================
+model Package {
+  id                String        @id @default(cuid())
+  trackingNumber    String        @unique // 快遞單號
+  userId            String
+  user              User          @relation(fields: [userId], references: [id])
+  
+  // 包裹資訊
+  itemName          String?       // 物品名稱
+  category          String?       // 物品類別
+  quantity          Int           @default(1)
+  declaredValue     Float         @default(0) // 申報價值 (用於保險)
+  
+  // 入庫重量與材積 (由倉庫測量)
+  weight            Float?        // 實際重量 (kg)
+  length            Float?        // 長 (cm)
+  width             Float?        // 寬 (cm)
+  height            Float?        // 高 (cm)
+  volumetricWeight  Float?        // 材積重
+  
+  // 倉儲資訊
+  warehouseLocation String?       // 倉庫儲位 (如: A-12-3)
+  warehouseNote     String?       @db.Text
+  warehousePhotos   String[]      // 圖片 URL 陣列
+
+  // 狀態
+  status            PackageStatus @default(PENDING)
+  
+  // 關聯集運單
+  shipmentId        String?
+  shipment          Shipment?     @relation(fields: [shipmentId], references: [id])
+
+  arrivedAt         DateTime?     // 入庫時間
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+enum PackageStatus {
+  PENDING        // 預報中
+  IN_WAREHOUSE   // 已入庫
+  PROCESSING     // 打包中 (已申請集運)
+  SHIPPED        // 已出庫
+  ARRIVED        // 已簽收
+  LOST           // 遺失
+  RETURNED       // 已退貨
+}
+
+// ==========================================
+// --- 4. 集運單與物流引擎 ---
+// ==========================================
+model Shipment {
+  id                String         @id @default(cuid())
+  shipmentNo        String         @unique // 系統生成的運單號 SPG...
+  userId            String
+  user              User           @relation(fields: [userId], references: [id])
+  
+  // 收件資訊與報關
+  recipientName     String
+  recipientPhone    String
+  recipientAddress  String
+  declarantId       String?        // 關聯報關人
+  declarant         Declarant?     @relation(fields: [declarantId], references: [id])
+  idCardNumber      String?        // 實名認證身分證字號
+  
+  // 物流計算結果
+  totalWeight       Float          @default(0)
+  chargeableWeight  Float          @default(0)
+  shippingFee       Float          @default(0)
+  serviceFee        Float          @default(0) // 額外服務費 (加固, 拍照等)
+  insuranceFee      Float          @default(0)
+  couponDiscount    Float          @default(0)
+  pointsDiscount    Float          @default(0)
+  finalAmount       Float          @default(0) // 最終實付金額
+
+  // 物流狀態
+  status            ShipmentStatus @default(UNPAID)
+  localCarrier      String?        // 台灣在地物流 (黑貓, 新竹)
+  localTrackingNo   String?        // 台灣派送單號
+
+  // 支付紀錄
+  paidAt            DateTime?
+  paymentMethod     String?        // WALLET, CREDIT_CARD, POINT_ONLY
+
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  packages          Package[]
+  serviceItems      ShipmentServiceDetail[] // 勾選的附加服務清單
+
+  @@index([userId])
+  @@index([status])
+}
+
+enum ShipmentStatus {
+  UNPAID         // 待支付
+  PAID           // 已支付 (待處理)
+  PROCESSING     // 揀貨打包中
+  READY_TO_SHIP  // 待出庫 (清關中)
+  SHIPPED        // 運輸中
+  ARRIVED        // 已送達
+  CANCELLED      // 已取消
+}
+
+// ==========================================
+// --- 5. 報關人資訊 (EZ WAY 實名制) ---
+// ==========================================
+model Declarant {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  name         String
+  phone        String
+  idCardNumber String
+  isDefault    Boolean    @default(false)
+  shipments    Shipment[]
+  createdAt    DateTime   @default(now())
+}
+
+// ==========================================
+// --- 6. 財務交易與錢包流水 ---
+// ==========================================
+model WalletTransaction {
+  id            String          @id @default(cuid())
+  userId        String
+  user          User            @relation(fields: [userId], references: [id])
+  amount        Float
+  type          TransactionType
+  status        TxStatus        @default(COMPLETED)
+  description   String?
+  referenceId   String?         // 關聯的運單號或充值單號
+  balanceBefore Float
+  balanceAfter  Float
+  createdAt     DateTime        @default(now())
+
+  @@index([userId])
+}
+
+enum TransactionType {
+  RECHARGE      // 儲值
+  PAYMENT       // 支付運費
+  REFUND        // 退款
+  ADJUSTMENT    // 手動調帳
+}
+
+enum TxStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+// ==========================================
+// --- 7. 點數與行銷系統 ---
+// ==========================================
+model PointLog {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  points      Int      // 正值為獲得，負值為抵扣
+  reason      String   // 如：曬圖獎勵, 運費抵扣
+  createdAt   DateTime @default(now())
+}
+
+model UserCoupon {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  code      String
+  discount  Float
+  isUsed    Boolean  @default(false)
+  usedAt    DateTime?
+  expireAt  DateTime
+  createdAt DateTime @default(now())
+}
+
+// ==========================================
+// --- 8. 系統配置與附加服務 ---
+// ==========================================
+model SystemSetting {
+  id           String   @id @default(cuid())
+  key          String   @unique // 如: EXCHANGE_RATE, BASE_SHIPPING_FEE
+  value        String
+  description  String?
+  updatedAt    DateTime @updatedAt
+}
+
+model ShipmentServiceItem {
+  id          String   @id @default(cuid())
+  name        String   // 服務名稱 (如: 釘木架, 加強打包)
+  price       Float    @default(0)
+  unit        String   @default("PIECE") // PIECE, WEIGHT
+  isActive    Boolean  @default(true)
+  details     ShipmentServiceDetail[]
+}
+
+model ShipmentServiceDetail {
+  id               String              @id @default(cuid())
+  shipmentId       String
+  shipment         Shipment            @relation(fields: [shipmentId], references: [id])
+  serviceItemId    String
+  serviceItem      ShipmentServiceItem @relation(fields: [serviceItemId], references: [id])
+  feeCharged       Float
+}
+
+// ==========================================
+// --- 9. 基礎設施 (日誌、通知、消息) ---
+// ==========================================
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String   // 操作動作
+  target    String?  // 操作目標 (如: Package:ID)
+  ip        String?
+  details   Json?
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  content   String   @db.Text
+  isRead    Boolean  @default(false)
+  type      String   @default("SYSTEM") // SYSTEM, SHIPMENT, WALLET
+  createdAt DateTime @default(now())
+}
+
+model News {
+  id          String   @id @default(cuid())
+  title       String
+  content     String   @db.Text
+  category    String   @default("GENERAL")
+  isImportant Boolean  @default(false)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

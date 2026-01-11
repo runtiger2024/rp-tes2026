@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <title>家具代購管理 - 小跑豬營運後台</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/admin-modern.css" />
+    <link rel="stylesheet" href="css/modals-unified.css" />
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="sidebar-placeholder"></div>
+      <div id="content-wrapper" class="d-flex flex-column">
+        <div class="container-fluid mt-4">
+          <h1 class="page-title">家具採購訂單審核</h1>
+
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <div class="card p-3 shadow-sm d-flex flex-row gap-3">
+                <button class="btn btn-outline-primary active">全部訂單</button>
+                <button class="btn btn-outline-warning">待報價</button>
+                <button class="btn btn-outline-success">已成交</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive card shadow">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>申請時間</th>
+                  <th>會員</th>
+                  <th>工廠/連結</th>
+                  <th>人民幣金額</th>
+                  <th>折合台幣</th>
+                  <th>目前狀態</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="furniture-admin-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/apiConfig.js"></script>
+    <script type="module">
+      import { furnitureAdminModule } from "./assets/js/modules/admin/m-furniture.js";
+      import "./js/admin-layout.js";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        furnitureAdminModule.init();
+      });
+    </script>
+  </body>
+</html>

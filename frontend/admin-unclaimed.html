@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <title>無主包裹指派 - 小跑豬營運後台</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/admin-modern.css" />
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="sidebar-placeholder"></div>
+      <div id="content-wrapper" class="d-flex flex-column">
+        <div class="container-fluid mt-4">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3">📦 無主包裹庫存區</h1>
+            <div class="badge badge-danger p-2">
+              目前共有 <span id="unclaimed-count">0</span> 件待認領
+            </div>
+          </div>
+
+          <div class="card border-left-danger shadow">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="modern-table">
+                  <thead>
+                    <tr>
+                      <th>入庫日期</th>
+                      <th>物流單號</th>
+                      <th>尺寸/重量</th>
+                      <th>實拍照片</th>
+                      <th>備註</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="unclaimed-table-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/apiConfig.js"></script>
+    <script type="module">
+      import { logisticsModule } from "./assets/js/modules/m-logistics.js";
+      import "./js/admin-layout.js";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        logisticsModule.loadUnclaimedParcels();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,58 @@
+<div class="section-wrapper animate-slide-up">
+  <div class="package-actions-header">
+    <div class="action-buttons">
+      <button
+        onclick="window.modalManager.open('single-forecast')"
+        class="btn-action primary"
+      >
+        <i class="fas fa-plus-circle"></i> 單件預報
+      </button>
+      <button
+        onclick="window.modalManager.open('bulk-forecast')"
+        class="btn-action secondary"
+      >
+        <i class="fas fa-file-excel"></i> 批次預報
+      </button>
+    </div>
+
+    <div class="filter-search-group">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          id="pkg-search-input"
+          placeholder="搜尋單號或商品名稱..."
+        />
+      </div>
+      <select id="pkg-status-filter" class="filter-select">
+        <option value="ALL">全部狀態</option>
+        <option value="PENDING">待入庫</option>
+        <option value="ARRIVED">已入庫</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-responsive cart-style mt-20">
+    <table class="app-table">
+      <thead>
+        <tr>
+          <th width="40"><input type="checkbox" id="select-all-packages" /></th>
+          <th>狀態</th>
+          <th>單號/商品</th>
+          <th>規格/費用</th>
+          <th width="80">操作</th>
+        </tr>
+      </thead>
+      <tbody id="packages-table-body"></tbody>
+    </table>
+  </div>
+
+  <div id="checkout-bar" class="checkout-floating-bar" style="display: none">
+    <div class="selected-info">
+      已選 <span id="selected-count">0</span> 件包裹
+    </div>
+    <button onclick="window.startShipmentFlow()" class="btn-checkout">
+      申請合併打包 <i class="fas fa-arrow-right"></i>
+    </button>
+  </div>
+</div>

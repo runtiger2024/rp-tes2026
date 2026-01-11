@@ -1,0 +1,48 @@
+<div id="deposit-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>錢包儲值申請</h3>
+      <span class="modal-close">&times;</span>
+    </div>
+    <form id="deposit-form" class="modal-body">
+      <div class="form-group">
+        <label>匯款金額 (NT$)</label>
+        <input
+          type="number"
+          id="dep-amount"
+          class="form-control"
+          min="1"
+          required
+        />
+      </div>
+
+      <div class="b2b-section mt-15">
+        <label>發票資訊 (若需開立統編請填寫)</label>
+        <div class="input-row">
+          <input type="text" id="dep-tax-id" placeholder="統一編號" />
+          <input type="text" id="dep-invoice-title" placeholder="發票抬頭" />
+        </div>
+      </div>
+
+      <div class="form-group mt-15">
+        <label>上傳轉帳憑證 / 截圖</label>
+        <div
+          class="upload-zone"
+          onclick="document.getElementById('dep-file').click()"
+        >
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>點擊此處上傳圖片</p>
+          <img id="dep-preview" style="display: none" />
+        </div>
+        <input
+          type="file"
+          id="dep-file"
+          accept="image/*"
+          style="display: none"
+        />
+      </div>
+
+      <button type="submit" class="btn-primary-block mt-20">提交審核</button>
+    </form>
+  </div>
+</div>

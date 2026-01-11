@@ -1,0 +1,23 @@
+<div class="wallet-section-container animate-slide-up">
+  <div class="wallet-hero-card">
+    <div class="card-inner">
+      <span class="label">可用餘額 (TWD)</span>
+      <h2 class="balance-amount">
+        NT$ <span id="wallet-balance-display">0</span>
+      </h2>
+      <button
+        onclick="window.modalManager.open('deposit')"
+        class="btn-deposit-trigger"
+      >
+        <i class="fas fa-plus"></i> 立即儲值
+      </button>
+    </div>
+  </div>
+
+  <div id="wallet-bank-info-static" class="bank-info-box"></div>
+
+  <div class="transaction-history-wrapper">
+    <h4 class="history-title"><i class="fas fa-list-ul"></i> 近期帳務流水</h4>
+    <div id="transaction-list-container" class="transaction-list"></div>
+  </div>
+</div>

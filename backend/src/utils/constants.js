@@ -1,0 +1,36 @@
+// backend/src/utils/constants.js
+module.exports = {
+  // 包裹狀態
+  PACKAGE_STATUS: {
+    PENDING: "PENDING",
+    IN_WAREHOUSE: "IN_WAREHOUSE",
+    PROCESSING: "PROCESSING",
+    SHIPPED: "SHIPPED",
+    ARRIVED: "ARRIVED",
+  },
+
+  // 集運單狀態
+  SHIPMENT_STATUS: {
+    UNPAID: "UNPAID",
+    PAID: "PAID",
+    PROCESSING: "PROCESSING",
+    SHIPPED: "SHIPPED",
+    COMPLETED: "COMPLETED",
+    CANCELLED: "CANCELLED",
+  },
+
+  // 財務交易類型
+  TRANSACTION_TYPE: {
+    RECHARGE: "RECHARGE",
+    PAYMENT: "PAYMENT",
+    REFUND: "REFUND",
+    ADJUSTMENT: "ADJUSTMENT",
+  },
+
+  // 系統預設值
+  SYSTEM: {
+    INITIAL_PIGGY_ID_NUM: 6006888,
+    VOLUME_DIVISOR: 28317,
+    DEFAULT_CURRENCY: "TWD",
+  },
+};

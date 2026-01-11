@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>包裹管理 - 小跑豬後台</title>
+    <link rel="icon" href="assets/logo.png" type="image/png" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/admin-modern.css" />
+    <link rel="stylesheet" href="css/modals-unified.css" />
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="sidebar-placeholder"></div>
+      <div id="content-wrapper" class="d-flex flex-column">
+        <nav
+          id="topbar-placeholder"
+          class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow"
+        ></nav>
+
+        <div class="container-fluid">
+          <h1 class="page-title">包裹管理系統</h1>
+
+          <div class="card">
+            <div class="card-body">
+              <div class="filters-bar">
+                <div style="flex: 1; min-width: 200px">
+                  <input
+                    type="text"
+                    id="search-input"
+                    class="form-control"
+                    placeholder="搜尋運單號 / 會員編號 / 姓名..."
+                  />
+                </div>
+                <div style="flex: 0 0 150px">
+                  <select id="status-filter" class="form-control">
+                    <option value="">所有狀態</option>
+                    <option value="PENDING">待入庫</option>
+                    <option value="ARRIVED">已入庫</option>
+                    <option value="SHIPPED">已發貨</option>
+                  </select>
+                </div>
+                <button class="btn btn-primary" id="btn-search">
+                  <i class="fas fa-search"></i> 搜尋
+                </button>
+                <button class="btn btn-success" id="btn-add-parcel">
+                  <i class="fas fa-plus"></i> 新增包裹
+                </button>
+              </div>
+
+              <div id="bulk-actions" style="display: none; margin-bottom: 15px">
+                <button class="btn btn-danger btn-sm" id="btn-bulk-delete">
+                  <i class="fas fa-trash"></i> 批量刪除
+                </button>
+              </div>
+
+              <div class="table-responsive">
+                <table class="modern-table">
+                  <thead>
+                    <tr>
+                      <th width="30">
+                        <input type="checkbox" id="select-all" />
+                      </th>
+                      <th>物流單號</th>
+                      <th>所屬會員</th>
+                      <th>商品名稱</th>
+                      <th>入庫規格</th>
+                      <th>目前狀態</th>
+                      <th width="100">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="parcelsTableBody"></tbody>
+                </table>
+              </div>
+              <div id="pagination" class="pagination-container"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="parcel-modal" class="modal"></div>
+
+    <script src="js/apiConfig.js"></script>
+    <script type="module">
+      import { logisticsModule } from "./assets/js/modules/m-logistics.js";
+      import "./js/admin-layout.js";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // 初始載入數據
+        logisticsModule.loadParcels();
+
+        // 搜尋事件
+        document.getElementById("btn-search").onclick = () => {
+          const query = document.getElementById("search-input").value;
+          const status = document.getElementById("status-filter").value;
+          logisticsModule.loadParcels(1, query, status);
+        };
+      });
+    </script>
+  </body>
+</html>

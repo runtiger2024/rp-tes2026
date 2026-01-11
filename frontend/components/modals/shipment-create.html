@@ -1,0 +1,68 @@
+<div id="shipment-create-modal" class="modal-overlay">
+  <div class="modal-content modal-lg">
+    <div class="modal-header">
+      <h3><i class="fas fa-truck-loading"></i> 確認集運訂單</h3>
+      <span class="modal-close">&times;</span>
+    </div>
+    <form id="shipment-create-form" class="modal-body">
+      <div class="checkout-grid">
+        <div class="checkout-parcels">
+          <h5>待發貨清單</h5>
+          <div id="checkout-items-list" class="mini-parcel-list"></div>
+        </div>
+        <div class="checkout-forms">
+          <div class="form-group">
+            <label>收件人資料</label>
+            <button
+              type="button"
+              onclick="window.openRecipientSelector()"
+              class="btn-select-rc"
+            >
+              選擇常用收件人 <i class="fas fa-address-book"></i>
+            </button>
+            <input
+              type="text"
+              id="ship-name"
+              class="form-control mt-10"
+              placeholder="姓名"
+              required
+            />
+            <input
+              type="tel"
+              id="ship-phone"
+              class="form-control mt-10"
+              placeholder="電話"
+              required
+            />
+            <input
+              type="text"
+              id="ship-address"
+              class="form-control mt-10"
+              placeholder="收貨地址"
+              required
+            />
+          </div>
+          <div class="form-group mt-15">
+            <label>身分證字號 (報關專用)</label>
+            <input
+              type="text"
+              id="ship-id-card"
+              class="form-control"
+              placeholder="A123456789"
+              required
+            />
+          </div>
+        </div>
+      </div>
+      <div class="cost-summary-bar">
+        <div class="total-label">預估總運費：</div>
+        <div class="total-value">
+          NT$ <span id="checkout-total-fee">0</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn-confirm-ship">正式提交運單</button>
+      </div>
+    </form>
+  </div>
+</div>

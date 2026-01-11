@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <title>系統運費與配置 - 小跑豬管理</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/admin-modern.css" />
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="sidebar-placeholder"></div>
+      <div id="content-wrapper" class="d-flex flex-column">
+        <div class="container-fluid mt-4">
+          <div class="settings-tab-nav">
+            <div class="tab-btn active" data-tab="logistics-rates">
+              運費費率
+            </div>
+            <div class="tab-btn" data-tab="service-items">附加服務</div>
+            <div class="tab-btn" data-tab="bank-info">銀行資訊</div>
+            <div class="tab-btn" data-tab="invoice-config">電子發票</div>
+          </div>
+
+          <div id="logistics-rates" class="tab-content active card p-4 mt-3">
+            <h3>🚚 運費費率調整</h3>
+            <form id="rates-form">
+              <div id="rates-inputs-container"></div>
+              <button type="submit" class="btn btn-primary mt-3">
+                儲存費率
+              </button>
+            </form>
+          </div>
+
+          <div id="service-items" class="tab-content card p-4 mt-3">
+            <h3>🛠️ 附加服務項目</h3>
+            <div class="mb-3 text-right">
+              <button
+                class="btn btn-success"
+                onclick="window.openServiceModal()"
+              >
+                新增項目
+              </button>
+            </div>
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>名稱</th>
+                  <th>單價</th>
+                  <th>單位</th>
+                  <th>狀態</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="service-items-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/apiConfig.js"></script>
+    <script type="module">
+      import { contentModule } from "./assets/js/modules/m-content.js";
+      import "./js/admin-layout.js";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        contentModule.initSettingsPage();
+      });
+    </script>
+  </body>
+</html>

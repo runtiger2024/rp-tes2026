@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <title>系統審計日誌 - 小跑豬營運後台</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/admin-modern.css" />
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="sidebar-placeholder"></div>
+      <div id="content-wrapper" class="d-flex flex-column">
+        <div class="container-fluid mt-4">
+          <h1 class="h3 mb-4">📜 操作審計紀錄</h1>
+
+          <div class="card shadow">
+            <div class="card-body p-0">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>發生時間</th>
+                    <th>操作者</th>
+                    <th>動作</th>
+                    <th>對象</th>
+                    <th>詳細說明</th>
+                  </tr>
+                </thead>
+                <tbody id="logs-list"></tbody>
+              </table>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+              <button class="btn btn-sm btn-link" id="prev-logs">上一頁</button>
+              <span id="logs-page-info">頁次 1</span>
+              <button class="btn btn-sm btn-link" id="next-logs">下一頁</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/apiConfig.js"></script>
+    <script type="module">
+      import { adminApi } from "./src/api/admin.api.js";
+      import "./js/admin-layout.js";
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const data = await adminApi.getActivityLogs();
+        renderLogs(data.logs);
+      });
+
+      function renderLogs(logs) {
+        const body = document.getElementById("logs-list");
+        body.innerHTML = logs
+          .map(
+            (l) => `
+          <tr>
+            <td class="small">${new Date(l.createdAt).toLocaleString()}</td>
+            <td><strong>${l.user?.name || "系統"}</strong></td>
+            <td><span class="badge badge-info">${l.action}</span></td>
+            <td>${l.target || "-"}</td>
+            <td class="small text-muted">${JSON.stringify(l.details)}</td>
+          </tr>
+        `
+          )
+          .join("");
+      }
+    </script>
+  </body>
+</html>

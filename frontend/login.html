@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>登入會員 | 小跑豬集運</title>
+    <link rel="icon" href="assets/logo.png" type="image/png" />
+    <link rel="stylesheet" href="css/theme-client.css" />
+    <link rel="stylesheet" href="css/auth-unified.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body class="auth-page-bg">
+    <div class="auth-container-wrapper">
+      <div class="auth-card animate-fade-in">
+        <div class="auth-header">
+          <a href="index.html">
+            <img src="assets/logo.png" alt="Logo" class="auth-logo" />
+          </a>
+          <h1>歡迎回來</h1>
+          <p class="auth-subtitle">專業傢俱集運，清楚透明無套路</p>
+        </div>
+
+        <form id="login-form" class="auth-form active">
+          <div class="form-group">
+            <label><i class="fas fa-envelope"></i> 電子信箱</label>
+            <input
+              type="email"
+              id="login-email"
+              placeholder="example@email.com"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-lock"></i> 登入密碼</label>
+            <input
+              type="password"
+              id="login-password"
+              placeholder="請輸入密碼"
+              required
+            />
+          </div>
+          <button type="submit" class="btn-auth-primary" id="btn-login">
+            <span>登入系統</span> <i class="fas fa-sign-in-alt"></i>
+          </button>
+        </form>
+
+        <div class="social-auth-divider">
+          <span>或使用 LINE 快速登入</span>
+        </div>
+        <button type="button" id="lineLoginBtn" class="btn-line-auth">
+          <i class="fab fa-line"></i> LINE 一鍵登入 / 註冊
+        </button>
+
+        <div class="auth-footer">
+          <p>還沒有帳號嗎？ <a href="#" id="go-to-register">立即註冊</a></p>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script type="module">
+      import { sessionManager } from "./assets/js/core/session.js";
+      import { ui } from "./assets/js/utils/ui-helper.js";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // 1. 初始化 LINE 登入環境
+        sessionManager.initLineAuth();
+
+        // 2. 處理一般登入提交
+        const loginForm = document.getElementById("login-form");
+        loginForm.onsubmit = async (e) => {
+          e.preventDefault();
+          const btn = document.getElementById("btn-login");
+          ui.setLoading(btn, true);
+
+          try {
+            const email = document.getElementById("login-email").value;
+            const pass = document.getElementById("login-password").value;
+            await sessionManager.login(email, pass);
+            window.location.href = "dashboard.html";
+          } catch (err) {
+            ui.toast(err.message, "error");
+          } finally {
+            ui.setLoading(btn, false);
+          }
+        };
+
+        // 3. 綁定 LINE 按鈕
+        document.getElementById("lineLoginBtn").onclick = () => {
+          sessionManager.triggerLineLogin();
+        };
+      });
+    </script>
+  </body>
+</html>

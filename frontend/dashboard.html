@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>會員中心 | 小跑豬傢俱專線</title>
+    <link rel="icon" href="assets/logo.png" type="image/png" />
+
+    <link rel="stylesheet" href="css/theme-client.css" />
+    <link rel="stylesheet" href="css/client-dashboard.css" />
+    <link rel="stylesheet" href="css/modals-unified.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <script src="js/styleLoader.js"></script>
+
+    <style>
+      /* 確保內容切換時的流暢感 */
+      #main-content-area {
+        min-height: 50vh;
+        transition: opacity 0.25s ease-in-out;
+      }
+      #main-content-area.loading {
+        opacity: 0.4;
+        pointer-events: none;
+      }
+      /* 骨架屏或載入動畫樣式 */
+      .dashboard-loader {
+        padding: 60px 0;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body class="dashboard-theme">
+    <div class="bg-decoration">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+    </div>
+
+    <div class="app-layout-wrapper">
+      <header class="hero-dashboard animate-slide-down">
+        <div class="hero-content">
+          <div class="welcome-text">
+            <span class="greeting" id="ui-greeting">您好，</span>
+            <h2 class="user-name" id="ui-user-name">載入中...</h2>
+          </div>
+          <div class="user-status-row">
+            <span class="status-badge" id="ui-member-tier">
+              <i class="fas fa-crown"></i> 讀取中
+            </span>
+            <span class="user-id-tag">
+              編號: <strong id="ui-piggy-id">--</strong>
+            </span>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn-profile" id="btn-open-profile">
+            <i class="fas fa-user-cog"></i>
+          </button>
+        </div>
+      </header>
+
+      <div class="stats-grid animate-slide-up" style="animation-delay: 0.1s">
+        <div
+          class="stat-card-modern"
+          data-section="packages"
+          style="cursor: pointer"
+        >
+          <div class="stat-icon icon-blue"><i class="fas fa-box"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">在庫包裹</span>
+            <span class="stat-value" id="stat-pkg-count">0</span>
+          </div>
+        </div>
+        <div
+          class="stat-card-modern"
+          data-section="shipments"
+          style="cursor: pointer"
+        >
+          <div class="stat-icon icon-green">
+            <i class="fas fa-truck-loading"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">待收貨單</span>
+            <span class="stat-value" id="stat-ship-count">0</span>
+          </div>
+        </div>
+        <div
+          class="stat-card-modern"
+          data-section="wallet"
+          style="cursor: pointer"
+        >
+          <div class="stat-icon icon-gold"><i class="fas fa-wallet"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">錢包餘額</span>
+            <span class="stat-value">NT$ <span id="stat-balance">0</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="dashboard-tabs-wrapper animate-slide-up"
+        style="animation-delay: 0.2s"
+      >
+        <div class="dashboard-tabs">
+          <button class="tab-btn active" data-section="packages">
+            <i class="fas fa-boxes"></i><span>包裹清單</span>
+          </button>
+          <button class="tab-btn" data-section="shipments">
+            <i class="fas fa-file-invoice-dollar"></i><span>集運訂單</span>
+          </button>
+          <button class="tab-btn" data-section="wallet">
+            <i class="fas fa-history"></i><span>帳務中心</span>
+          </button>
+          <button class="tab-btn" data-section="recipients">
+            <i class="fas fa-address-book"></i><span>常用收件</span>
+          </button>
+        </div>
+      </div>
+
+      <main id="main-content-area" class="section-container animate-fade-in">
+        <div class="dashboard-loader">
+          <div class="spinner-apple"></div>
+          <p class="text-sub mt-15">正在安全連接伺服器...</p>
+        </div>
+      </main>
+
+      <div class="safe-area-spacer"></div>
+    </div>
+
+    <nav id="mobile-bottom-nav" class="universal-bottom-nav"></nav>
+
+    <div id="line-float-container"></div>
+
+    <div id="message-container"></div>
+
+    <script src="js/apiConfig.js"></script>
+
+    <script type="module">
+      import { dashboardController } from "./assets/js/pages/client/dashboard-main.js";
+      import { userStore } from "./assets/js/store/userStore.js";
+      import { layoutEngine } from "./assets/js/core/layout-engine.js";
+      import { modalManager } from "./assets/js/core/modal-manager.js";
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        // A. 安全核對：未登入者導回登入頁
+        const token = localStorage.getItem("token");
+        if (!token) {
+          window.location.href = "login.html?reason=unauthorized";
+          return;
+        }
+
+        try {
+          // B. 載入共用介面 (導航列、側邊欄、LINE 球)
+          await layoutEngine.loadCommonComponents();
+
+          // C. 初始化數據與 UI 同步
+          // 這會觸發 profile 調用，並填充 ui-user-name, stat-balance 等
+          await dashboardController.initDashboard();
+
+          // D. 綁定按鈕全域事件 (如個人資料編輯)
+          const profileBtn = document.getElementById("btn-open-profile");
+          if (profileBtn) {
+            profileBtn.onclick = () => modalManager.open("profile-edit");
+          }
+
+          // E. 滾動優化 (保留您原本的設計)
+          document
+            .querySelectorAll(".tab-btn, .stat-card-modern")
+            .forEach((btn) => {
+              btn.addEventListener("click", () => {
+                const wrapper = document.querySelector(
+                  ".dashboard-tabs-wrapper"
+                );
+                if (wrapper) {
+                  window.scrollTo({
+                    top:
+                      wrapper.getBoundingClientRect().top +
+                      window.pageYOffset -
+                      80,
+                    behavior: "smooth",
+                  });
+                }
+              });
+            });
+
+          // F. 桌面版相容性修復
+          if (window.innerWidth > 800) {
+            document
+              .querySelector(".app-layout-wrapper")
+              ?.classList.add("desktop-view");
+          }
+        } catch (error) {
+          console.error("[Dashboard Init Error]", error);
+        }
+      });
+    </script>
+  </body>
+</html>
