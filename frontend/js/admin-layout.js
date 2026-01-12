@@ -1,115 +1,151 @@
 /**
- * admin-layout.js
- * V2026.01.Final_Pro - 專業佈局與權限導航引擎
- * 負責：側邊欄生成、權限檢查、即時數據標籤同步、安全登出
+ * admin-layout.js - V2026.01.ULTIMATE
+ * 2026 旗艦版管理端核心調度引擎
+ * * 整合功能：
+ * 1. Auth Guard (安全攔截與權限檢查)
+ * 2. Sidebar/Topbar 動態注入
+ * 3. SPA Section 加載 (動態載入 components/sections/admin/ 下的碎片)
+ * 4. Module Bridge (自動初始化對應業務模組 .init())
+ * 5. Badge Syncing (即時待處理數據同步)
  */
 
-document.addEventListener("DOMContentLoaded", () => {
-  // 1. 讀取管理員資訊 (從 localStorage 獲取)
-  const adminToken = localStorage.getItem("admin_token");
-  const adminName = localStorage.getItem("admin_name") || "管理員";
-  const adminRole = localStorage.getItem("admin_role") || "STAFF";
-  const adminPermissions = JSON.parse(
-    localStorage.getItem("admin_permissions") || "[]"
-  );
+import { apiClient } from "../api/apiClient.js";
 
-  // 2. 初始安全攔截 (Auth Guard)
-  const currentPath = window.location.pathname;
-  if (!adminToken && !currentPath.includes("admin-login.html")) {
-    window.location.href = "admin-login.html?reason=unauthorized";
-    return;
-  }
-  if (currentPath.includes("admin-login.html")) return;
+export const adminLayout = {
+  state: {
+    adminName: localStorage.getItem("admin_name") || "管理員",
+    adminRole: localStorage.getItem("admin_role") || "STAFF",
+    adminPermissions: JSON.parse(
+      localStorage.getItem("admin_permissions") || "[]"
+    ),
+    currentSection: null,
+    sectionPath: "components/sections/admin/",
+    // 模組映射表：載入分頁後自動呼叫對應的模組初始化
+    moduleMap: {
+      "admin-parcels": "adminOpsModule", // 包裹入庫
+      "admin-shipments": "adminShipmentModule", // 訂單核價
+      "admin-unclaimed": "unclaimedModule", // 無主認領(管理端版)
+      "admin-finance": "adminUserModule", // 財務審核
+      "admin-members": "adminUserModule", // 會員管理
+      "admin-furniture": "adminFurnitureModule", // 家具報價
+      "admin-settings": "adminContentModule", // 公告/FAQ 編輯
+    },
+  },
 
   /**
-   * 3. 定義導航選單配置 (含權限過濾)
-   * 每個項目定義了對應的權限標籤，若管理員不具備該權限則不會顯示
+   * 核心配置：導航選單清單
    */
-  const menuItems = [
+  menuConfig: [
     {
       label: "營運儀表板",
       icon: "fas fa-tachometer-alt",
-      href: "admin-dashboard.html",
+      view: "admin-dashboard",
       permission: "DASHBOARD_VIEW",
     },
     {
       label: "包裹管理",
       icon: "fas fa-boxes",
-      href: "admin-parcels.html",
+      view: "admin-parcels",
       permission: "PACKAGE_VIEW",
-      badgeId: "badge-packages", // 對應即時統計數據
+      badgeId: "badge-packages",
     },
     {
       label: "集運單管理",
       icon: "fas fa-truck-loading",
-      href: "admin-shipments.html",
+      view: "admin-shipments",
       permission: "SHIPMENT_VIEW",
       badgeId: "badge-shipments",
     },
     {
       label: "無主包裹認領",
       icon: "fas fa-question-circle",
-      href: "admin-unclaimed.html",
+      view: "admin-unclaimed",
       permission: "PACKAGE_VIEW",
     },
     {
       label: "財務審核",
       icon: "fas fa-money-check-alt",
-      href: "admin-finance.html",
+      view: "admin-finance",
       permission: "FINANCE_VIEW",
       badgeId: "badge-finance",
     },
     {
       label: "會員資料管理",
       icon: "fas fa-users",
-      href: "admin-members.html",
+      view: "admin-members",
       permission: "USER_VIEW",
     },
     {
       label: "家具代購訂單",
       icon: "fas fa-couch",
-      href: "admin-furniture.html",
+      view: "admin-furniture",
       permission: "FURNITURE_VIEW",
       badgeId: "badge-furniture",
     },
     {
       label: "系統操作日誌",
       icon: "fas fa-history",
-      href: "admin-logs.html",
+      view: "admin-logs",
       permission: "LOGS_VIEW",
     },
     {
-      label: "全站營運設定",
-      icon: "fas fa-cogs",
-      href: "admin-settings.html",
+      label: "內容管理設定",
+      icon: "fas fa-edit",
+      view: "admin-settings",
       permission: "SYSTEM_CONFIG",
     },
-  ];
+  ],
 
   /**
-   * 4. 執行佈局注入 (Sidebar & Topbar)
+   * 引擎啟動
    */
-  injectLayout();
+  async init() {
+    console.log("🛠️ [Admin Engine] 旗艦調度引擎啟動...");
 
-  function injectLayout() {
-    // A. 側邊欄注入
+    // 1. 安全攔截
+    if (!this.checkAuth()) return;
+
+    // 2. 注入固定佈局 (側邊欄與頂欄)
+    this.injectBaseLayout();
+
+    // 3. 處理導航點擊 (SPA 模式)
+    this.bindEvents();
+
+    // 4. 初始化加載 (讀取 URL 參數，預設進入 dashboard)
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialView = urlParams.get("view") || "admin-dashboard";
+    await this.loadSection(initialView);
+
+    // 5. 啟動通知標籤同步
+    this.syncBadges();
+    setInterval(() => this.syncBadges(), 60000); // 每一分鐘同步一次
+  },
+
+  checkAuth() {
+    const token = localStorage.getItem("admin_token");
+    if (!token && !window.location.pathname.includes("admin-login.html")) {
+      window.location.href = "admin-login.html?reason=unauthorized";
+      return false;
+    }
+    return true;
+  },
+
+  injectBaseLayout() {
+    // 側邊欄注入
     const sidebarPlaceholder = document.getElementById("sidebar-placeholder");
     if (sidebarPlaceholder) {
-      const activeItem = menuItems.find((item) =>
-        currentPath.includes(item.href)
-      );
-
-      const filteredMenu = menuItems
+      const menuHtml = this.menuConfig
         .filter(
           (item) =>
-            !item.permission || adminPermissions.includes(item.permission)
+            !item.permission ||
+            this.state.adminPermissions.includes(item.permission)
         )
         .map(
           (item) => `
-          <li class="nav-item ${
-            currentPath.includes(item.href) ? "active" : ""
-          }">
-            <a class="nav-link" href="${item.href}">
+          <li class="nav-item" data-nav-view="${item.view}">
+            <a class="nav-link" href="#" onclick="layoutEngine.loadSection('${
+              item.view
+            }')">
               <i class="${item.icon}"></i>
               <span>${item.label}</span>
               ${
@@ -130,8 +166,8 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="sidebar-brand-text mx-3">小跑豬管理<sup>2026</sup></div>
           </a>
           <hr class="sidebar-divider my-0">
-          ${filteredMenu}
-          <hr class="sidebar-divider d-none d-md-block">
+          ${menuHtml}
+          <hr class="sidebar-divider">
           <div class="text-center d-none d-md-inline">
             <button class="rounded-circle border-0" id="sidebarToggle"></button>
           </div>
@@ -140,57 +176,109 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     }
 
-    // B. 頂欄注入 (Topbar)
+    // 頂欄注入 (Topbar)
     const topbarPlaceholder = document.getElementById("topbar-placeholder");
     if (topbarPlaceholder) {
       topbarPlaceholder.innerHTML = `
-        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-          <i class="fa fa-bars"></i>
-        </button>
-        <div class="topbar-breadcrumb d-none d-sm-block">小跑豬專業物流中心 / <strong>${
-          document.title.split("-")[0]
-        }</strong></div>
-        <ul class="navbar-nav ml-auto">
-          <div class="topbar-divider d-none d-sm-block"></div>
-          <li class="nav-item dropdown no-arrow">
-            <a class="nav-link dropdown-toggle" href="#" id="userDropdown">
-              <span class="mr-2 d-none d-lg-inline text-gray-600 small">${adminName} (${adminRole})</span>
-              <div class="img-profile-circle"><i class="fas fa-user-shield"></i></div>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">
-              <a class="dropdown-item" href="admin-settings.html"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>個人設定</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#" id="layoutLogoutBtn"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>安全登出</a>
-            </div>
-          </li>
-        </ul>
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+          <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3"><i class="fa fa-bars"></i></button>
+          <div class="topbar-breadcrumb d-none d-sm-block">系統管理中心 / <strong id="current-view-title">載入中</strong></div>
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item dropdown no-arrow">
+              <a class="nav-link dropdown-toggle" href="#" id="userDropdown">
+                <span class="mr-2 d-none d-lg-inline text-gray-600 small">${this.state.adminName} (${this.state.adminRole})</span>
+                <div class="img-profile-circle"><i class="fas fa-user-shield"></i></div>
+              </a>
+              <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">
+                <a class="dropdown-item" href="#" id="layoutLogoutBtn"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>安全登出</a>
+              </div>
+            </li>
+          </ul>
+        </nav>
       `;
     }
-  }
+  },
 
   /**
-   * 5. 同步通知標籤 (Badge Syncing)
-   * 透過後端 report/stats 介面獲取待處理事項數量
+   * SPA 核心：加載 HTML 碎片並初始化 JS 模組
    */
-  const syncBadges = async () => {
+  async loadSection(viewName) {
+    if (this.state.currentSection === viewName) return;
+
+    const container = document.getElementById("admin-main-content");
+    if (!container) return;
+
+    // 顯示 Loading
+    container.innerHTML = `<div class="admin-loading-spinner"><i class="fas fa-circle-notch fa-spin"></i> 同步數據中...</div>`;
+
     try {
-      const res = await fetch(`${API_BASE_URL}/api/admin/reports/stats`, {
-        headers: { Authorization: `Bearer ${adminToken}` },
-      });
-      const data = await res.json();
-      if (data.stats?.badges) {
-        const { packages, shipments, furniture, finance } = data.stats.badges;
-        updateBadgeUI("badge-packages", packages);
-        updateBadgeUI("badge-shipments", shipments);
-        updateBadgeUI("badge-furniture", furniture);
-        updateBadgeUI("badge-finance", finance);
+      const response = await fetch(`${this.state.sectionPath}${viewName}.html`);
+      if (!response.ok) throw new Error("分頁載入失敗");
+      const html = await response.text();
+
+      container.innerHTML = html;
+      this.state.currentSection = viewName;
+
+      // 更新介面狀態
+      this.updateActiveUI(viewName);
+
+      // ❗【啟動業務邏輯】❗
+      this.initBusinessModule(viewName);
+
+      // 更新 URL
+      const newUrl = `${window.location.pathname}?view=${viewName}`;
+      window.history.pushState({ view: viewName }, "", newUrl);
+    } catch (err) {
+      container.innerHTML = `<div class="alert alert-danger">加載失敗：${err.message}</div>`;
+    }
+  },
+
+  initBusinessModule(viewName) {
+    const moduleName = this.state.moduleMap[viewName];
+    if (
+      moduleName &&
+      window[moduleName] &&
+      typeof window[moduleName].init === "function"
+    ) {
+      console.log(`📦 [Bridge] 啟動業務模組: ${moduleName}`);
+      window[moduleName].init();
+    }
+  },
+
+  updateActiveUI(viewName) {
+    // 側邊欄高亮
+    document
+      .querySelectorAll("[data-nav-view]")
+      .forEach((el) => el.classList.remove("active"));
+    document
+      .querySelector(`[data-nav-view="${viewName}"]`)
+      ?.classList.add("active");
+
+    // 標題更新
+    const item = this.menuConfig.find((m) => m.view === viewName);
+    const titleEl = document.getElementById("current-view-title");
+    if (titleEl && item) titleEl.innerText = item.label;
+  },
+
+  /**
+   * 通知標籤即時同步
+   */
+  async syncBadges() {
+    try {
+      const res = await apiClient.get("/api/admin/reports/stats");
+      if (res.stats?.badges) {
+        const { packages, shipments, furniture, finance } = res.stats.badges;
+        this.updateBadgeUI("badge-packages", packages);
+        this.updateBadgeUI("badge-shipments", shipments);
+        this.updateBadgeUI("badge-furniture", furniture);
+        this.updateBadgeUI("badge-finance", finance);
       }
     } catch (error) {
-      console.warn("[Badge Sync] 通知同步失敗:", error.message);
+      console.warn("[Badge] 同步跳過");
     }
-  };
+  },
 
-  function updateBadgeUI(id, count) {
+  updateBadgeUI(id, count) {
     const el = document.getElementById(id);
     if (!el) return;
     const num = parseInt(count) || 0;
@@ -200,46 +288,29 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       el.style.display = "none";
     }
-  }
+  },
 
-  // 每 2 分鐘自動同步一次通知數量
-  syncBadges();
-  setInterval(syncBadges, 120000);
-
-  /**
-   * 6. 事件監聽 (側邊欄切換、登出)
-   */
-  document.addEventListener("click", (e) => {
-    // 側邊欄開關 (Mobile)
-    if (
-      e.target.closest("#sidebarToggleTop") ||
-      e.target.closest("#sidebarToggle")
-    ) {
-      document.querySelector(".sidebar").classList.toggle("toggled");
-      document.getElementById("mobile-overlay")?.classList.toggle("show");
-    }
-
-    // 遮罩關閉
-    if (e.target.id === "mobile-overlay") {
-      document.querySelector(".sidebar").classList.remove("toggled");
-      e.target.classList.remove("show");
-    }
-
-    // 安全登出邏輯
-    if (e.target.closest("#layoutLogoutBtn")) {
-      e.preventDefault();
-      if (confirm("您確定要退出管理系統嗎？")) {
-        localStorage.clear();
-        window.location.href = "admin-login.html";
+  bindEvents() {
+    // 監聽登出
+    document.addEventListener("click", (e) => {
+      if (e.target.closest("#layoutLogoutBtn")) {
+        if (confirm("確定登出？")) {
+          localStorage.clear();
+          window.location.href = "admin-login.html";
+        }
       }
-    }
 
-    // 用戶下拉選單切換
-    if (e.target.closest("#userDropdown")) {
-      e.preventDefault();
-      document.querySelector(".dropdown-menu").classList.toggle("show");
-    } else {
-      document.querySelector(".dropdown-menu")?.classList.remove("show");
-    }
-  });
-});
+      // 側邊欄開關 (Mobile)
+      if (
+        e.target.closest("#sidebarToggleTop") ||
+        e.target.closest("#sidebarToggle")
+      ) {
+        document.querySelector(".sidebar").classList.toggle("toggled");
+      }
+    });
+  },
+};
+
+// 曝露給全域並啟動
+window.layoutEngine = adminLayout;
+document.addEventListener("DOMContentLoaded", () => adminLayout.init());
