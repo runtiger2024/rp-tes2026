@@ -1,0 +1,282 @@
+<div id="edit-package-modal" class="modal-overlay" style="display: none">
+  <div
+    class="modal-content animate-pop-in"
+    style="max-width: 550px; width: 95%"
+  >
+    <div class="modal-header">
+      <h3 style="margin: 0; color: #1e293b; font-weight: 800">
+        <i class="fas fa-edit" style="color: #1a73e8; margin-right: 10px"></i
+        >修改包裹資訊
+      </h3>
+      <span class="modal-close" onclick="window.modalManager.close()"
+        >&times;</span
+      >
+    </div>
+
+    <form id="edit-package-form" class="modal-body">
+      <input type="hidden" id="edit-package-id" />
+
+      <div class="form-group" style="margin-bottom: 15px">
+        <label
+          style="
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #64748b;
+          "
+          >物流單號</label
+        >
+        <input
+          type="text"
+          id="edit-trackingNumber"
+          class="form-control"
+          readonly
+          style="
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+            cursor: not-allowed;
+          "
+        />
+      </div>
+
+      <div class="form-group" style="margin-bottom: 15px">
+        <label
+          class="required"
+          style="
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #334155;
+          "
+          >商品名稱</label
+        >
+        <input
+          type="text"
+          id="edit-productName"
+          class="form-control"
+          required
+          style="
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+          "
+        />
+      </div>
+
+      <div
+        style="
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 15px;
+          margin-bottom: 15px;
+        "
+      >
+        <div class="form-group">
+          <label
+            class="required"
+            style="
+              display: block;
+              margin-bottom: 8px;
+              font-weight: 600;
+              color: #334155;
+            "
+            >數量</label
+          >
+          <input
+            type="number"
+            id="edit-quantity"
+            class="form-control"
+            required
+            min="1"
+            style="
+              width: 100%;
+              padding: 12px;
+              border: 1.5px solid #e2e8f0;
+              border-radius: 10px;
+            "
+          />
+        </div>
+        <div class="form-group">
+          <label
+            style="
+              display: block;
+              margin-bottom: 8px;
+              font-weight: 600;
+              color: #334155;
+            "
+            >商品連結 (選填)</label
+          >
+          <input
+            type="url"
+            id="edit-productUrl"
+            class="form-control"
+            placeholder="https://..."
+            style="
+              width: 100%;
+              padding: 12px;
+              border: 1.5px solid #e2e8f0;
+              border-radius: 10px;
+            "
+          />
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 20px">
+        <label
+          style="
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #334155;
+          "
+          >備註</label
+        >
+        <input
+          type="text"
+          id="edit-note"
+          class="form-control"
+          placeholder="有特殊交代請備註於此"
+          style="
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+          "
+        />
+      </div>
+
+      <div class="form-group" style="margin-bottom: 20px">
+        <label
+          style="
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #334155;
+          "
+          >現有照片 (點擊照片可刪除)</label
+        >
+        <div
+          id="edit-package-images-container"
+          style="
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            min-height: 50px;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 10px;
+          "
+        ></div>
+      </div>
+
+      <div class="form-group">
+        <label
+          style="
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #334155;
+          "
+          >上傳新圖片</label
+        >
+        <div class="upload-zone-wrapper">
+          <label
+            for="edit-package-new-images"
+            class="upload-zone"
+            id="edit-package-uploader"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              width: 100%;
+              height: 120px;
+              border: 2px dashed #cbd5e1;
+              border-radius: 12px;
+              cursor: pointer;
+              background: #f8fafc;
+              transition: all 0.2s;
+            "
+          >
+            <i
+              class="fas fa-camera"
+              style="font-size: 24px; color: #94a3b8; margin-bottom: 8px"
+            ></i>
+            <span style="color: #64748b; font-size: 14px"
+              >點擊增加商品照片</span
+            >
+          </label>
+          <input
+            type="file"
+            id="edit-package-new-images"
+            multiple
+            accept="image/*"
+            style="display: none"
+          />
+        </div>
+        <div
+          id="new-images-preview-list"
+          style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px"
+        ></div>
+      </div>
+
+      <div class="modal-footer" style="margin-top: 30px">
+        <button
+          type="submit"
+          class="btn btn-primary w-100"
+          style="
+            padding: 14px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.15);
+          "
+        >
+          儲存修改內容
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  /**
+   * 深度還原：新圖片選擇後的即時預覽邏輯
+   */
+  document
+    .getElementById("edit-package-new-images")
+    .addEventListener("change", function (e) {
+      const previewList = document.getElementById("new-images-preview-list");
+      previewList.innerHTML = ""; // 清空舊預覽
+
+      Array.from(e.target.files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const div = document.createElement("div");
+          div.style.cssText =
+            "width: 60px; height: 60px; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0;";
+          div.innerHTML = `<img src="${event.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+          previewList.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+  /**
+   * 深度還原：表單提交對接
+   */
+  document
+    .getElementById("edit-package-form")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+      if (window.parcelModule && window.parcelModule.handleEditSubmit) {
+        await window.parcelModule.handleEditSubmit();
+      }
+    });
+</script>

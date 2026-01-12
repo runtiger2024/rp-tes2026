@@ -1,0 +1,274 @@
+<div class="faq-section-wrapper animate-slide-up">
+  <div class="section-header-box" style="margin-bottom: 25px">
+    <h3
+      style="
+        margin: 0;
+        font-weight: 800;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+      "
+    >
+      <i
+        class="fas fa-question-circle"
+        style="color: #1a73e8; margin-right: 12px"
+      ></i
+      >常見問題 (FAQ)
+    </h3>
+    <p
+      style="
+        margin: 8px 0 20px 0;
+        font-size: 14px;
+        color: #64748b;
+        padding-left: 32px;
+      "
+    >
+      我們整理了客戶最常遇到的問題，若仍有疑問請隨時與線上客服聯繫。
+    </p>
+
+    <div
+      class="faq-search-container"
+      style="position: relative; max-width: 100%; margin-bottom: 25px"
+    >
+      <i
+        class="fas fa-search"
+        style="
+          position: absolute;
+          left: 18px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #94a3b8;
+        "
+      ></i>
+      <input
+        type="text"
+        id="faq-search-input"
+        class="form-control"
+        placeholder="搜尋問題關鍵字 (如：運費、木架、禁運...)"
+        style="
+          padding: 14px 14px 14px 50px;
+          border-radius: 16px;
+          border: 1.5px solid #e2e8f0;
+          width: 100%;
+          font-size: 15px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        "
+      />
+    </div>
+
+    <div
+      class="faq-tabs-container"
+      style="
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+      "
+    >
+      <button class="faq-tab active" data-category="all">全部</button>
+      <button class="faq-tab" data-category="shipping">集運相關</button>
+      <button class="faq-tab" data-category="furniture">家具專線</button>
+      <button class="faq-tab" data-category="payment">支付財務</button>
+      <button class="faq-tab" data-category="others">其他說明</button>
+    </div>
+  </div>
+
+  <div
+    id="faq-list-container"
+    class="faq-items-group"
+    style="display: flex; flex-direction: column; gap: 15px"
+  >
+    <div class="faq-item" data-category="shipping">
+      <div class="faq-question">
+        <span><i class="fas fa-box"></i> 如何進行包裹預報？</span>
+        <i class="fas fa-chevron-down toggle-icon"></i>
+      </div>
+      <div class="faq-answer">
+        <p>
+          在大陸電商平台下單後，請取得物流單號並回到本系統的「包裹管理」頁面點擊「單件預報」，填寫單號與商品名稱即可。若包裹已抵達倉庫但您未預報，包裹將進入「無主件」區域，您可使用單號進行認領。
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="furniture">
+      <div class="faq-question">
+        <span><i class="fas fa-couch"></i> 易碎家具會提供加固服務嗎？</span>
+        <i class="fas fa-chevron-down toggle-icon"></i>
+      </div>
+      <div class="faq-answer">
+        <p>
+          是的。針對馬桶、岩板餐桌、大理石茶几等易碎品，我們強烈建議進行打木架或木箱加固。您可以在包裹入庫後，透過系統聯絡客服或在預報時備註需求，木架費用將根據體積大小另行報價。
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="payment">
+      <div class="faq-question">
+        <span><i class="fas fa-credit-card"></i> 支援哪些付款方式？</span>
+        <i class="fas fa-chevron-down toggle-icon"></i>
+      </div>
+      <div class="faq-answer">
+        <p>
+          目前支援「銀行轉帳」儲值錢包後扣款。您完成轉帳後請上傳匯款憑證，管理員審核通過後餘額將立即反映在您的個人錢包中。未來我們將陸續規劃串接更多線上支付方式。
+        </p>
+      </div>
+    </div>
+
+    <div
+      id="faq-empty-state"
+      style="display: none; text-align: center; padding: 50px; color: #94a3b8"
+    >
+      <i
+        class="fas fa-search"
+        style="font-size: 40px; margin-bottom: 15px; opacity: 0.3"
+      ></i>
+      <p>找不到相關的問題，請嘗試更換關鍵字或洽詢客服。</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* 深度還原：摺疊項基礎樣式 */
+  .faq-item {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  .faq-question {
+    padding: 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    color: #334155;
+    user-select: none;
+  }
+  .faq-question i.fas {
+    margin-right: 10px;
+    color: #1a73e8;
+    width: 20px;
+    text-align: center;
+  }
+
+  /* 深度還原：答案摺疊動畫與貝茲曲線 */
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #fcfdfe;
+    padding: 0 20px;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  /* 啟動狀態 */
+  .faq-item.active {
+    border-color: #1a73e8;
+    box-shadow: 0 4px 15px rgba(26, 115, 232, 0.08);
+  }
+  .faq-item.active .faq-answer {
+    max-height: 500px;
+    padding: 0 20px 20px 52px;
+  }
+  .faq-item.active .toggle-icon {
+    transform: rotate(180deg);
+    color: #1a73e8;
+  }
+  .faq-item.active .faq-question {
+    color: #1a73e8;
+  }
+
+  /* Tab Chips 樣式 */
+  .faq-tab {
+    white-space: nowrap;
+    padding: 8px 18px;
+    border-radius: 50px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .faq-tab.active {
+    background: #1a73e8;
+    color: #fff;
+    border-color: #1a73e8;
+  }
+</style>
+
+<script>
+  /**
+   * 深度還原：摺疊開關邏輯
+   */
+  document.querySelectorAll(".faq-question").forEach((q) => {
+    q.addEventListener("click", () => {
+      const item = q.parentElement;
+      const isActive = item.classList.contains("active");
+
+      // 先關閉其他已打開的 (深度還原原始交互)
+      document
+        .querySelectorAll(".faq-item")
+        .forEach((el) => el.classList.remove("active"));
+
+      if (!isActive) {
+        item.classList.add("active");
+      }
+    });
+  });
+
+  /**
+   * 深度還原：即時搜尋過濾邏輯
+   */
+  const faqSearchInput = document.getElementById("faq-search-input");
+  faqSearchInput.addEventListener("input", function (e) {
+    const term = e.target.value.toLowerCase();
+    const items = document.querySelectorAll(".faq-item");
+    let visibleCount = 0;
+
+    items.forEach((item) => {
+      const text = item.innerText.toLowerCase();
+      if (text.includes(term)) {
+        item.style.display = "block";
+        visibleCount++;
+      } else {
+        item.style.display = "none";
+      }
+    });
+
+    document.getElementById("faq-empty-state").style.display =
+      visibleCount === 0 ? "block" : "none";
+  });
+
+  /**
+   * 深度還原：分類切換邏輯
+   */
+  document.querySelectorAll(".faq-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document
+        .querySelectorAll(".faq-tab")
+        .forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+
+      const category = tab.getAttribute("data-category");
+      const items = document.querySelectorAll(".faq-item");
+
+      items.forEach((item) => {
+        if (
+          category === "all" ||
+          item.getAttribute("data-category") === category
+        ) {
+          item.style.display = "block";
+        } else {
+          item.style.display = "none";
+        }
+      });
+    });
+  });
+</script>

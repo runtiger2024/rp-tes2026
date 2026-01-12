@@ -1,0 +1,204 @@
+<div class="news-section-wrapper animate-slide-up">
+  <div
+    class="section-header-box"
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    "
+  >
+    <div class="header-title">
+      <h3
+        style="
+          margin: 0;
+          font-weight: 800;
+          color: #1e293b;
+          display: flex;
+          align-items: center;
+        "
+      >
+        <i
+          class="fas fa-bullhorn"
+          style="color: #1a73e8; margin-right: 12px"
+        ></i
+        >最新消息
+      </h3>
+      <p style="margin: 5px 0 0 32px; font-size: 13px; color: #64748b">
+        關注小跑豬官方公告，掌握物流動態與優惠訊息
+      </p>
+    </div>
+    <button
+      class="btn btn-sm btn-outline-secondary"
+      onclick="if(window.loadNewsList) window.loadNewsList(true)"
+      style="
+        border-radius: 8px;
+        font-size: 12px;
+        padding: 6px 12px;
+        cursor: pointer;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+      "
+    >
+      <i class="fas fa-sync-alt"></i> 重新整理
+    </button>
+  </div>
+
+  <div
+    class="news-filter-bar"
+    style="
+      background: #fff;
+      padding: 15px 20px;
+      border-radius: 18px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 25px;
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      white-space: nowrap;
+    "
+  >
+    <button class="news-filter-chip active" data-type="all">全部消息</button>
+    <button class="news-filter-chip" data-type="ANNOUNCEMENT">重要公告</button>
+    <button class="news-filter-chip" data-type="HOLIDAY">節假日通知</button>
+    <button class="news-filter-chip" data-type="PROMOTION">優惠活動</button>
+    <button class="news-filter-chip" data-type="MAINTENANCE">系統維護</button>
+  </div>
+
+  <div
+    id="news-list-container"
+    style="
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    "
+  >
+    <div
+      style="
+        grid-column: 1/-1;
+        text-align: center;
+        padding: 50px;
+        color: #94a3b8;
+      "
+    >
+      <i class="fas fa-spinner fa-spin fa-2x"></i>
+      <p style="margin-top: 15px; font-weight: 600">正在獲取最新公告...</p>
+    </div>
+  </div>
+
+  <div
+    id="news-empty-state"
+    style="
+      display: none;
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 60px;
+      color: #cbd5e1;
+    "
+  >
+    <i
+      class="fas fa-comment-slash"
+      style="font-size: 50px; margin-bottom: 15px"
+    ></i>
+    <p>目前沒有相關的消息公告</p>
+  </div>
+</div>
+
+<style>
+  /* 深度還原：消息標籤專屬色彩系統 */
+  .news-tag {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 6px;
+    text-transform: uppercase;
+  }
+  .tag-announcement {
+    background: #fff1f0;
+    color: #f5222d;
+  } /* 重要公告 - 紅色 */
+  .tag-holiday {
+    background: #fff7e6;
+    color: #fa8c16;
+  } /* 節假日 - 橘色 */
+  .tag-promotion {
+    background: #f6ffed;
+    color: #52c41a;
+  } /* 活動 - 綠色 */
+  .tag-general {
+    background: #f5f5f5;
+    color: #8c8c8c;
+  } /* 一般 - 灰色 */
+
+  /* 深度還原：消息卡片與兩行截斷邏輯 */
+  .news-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .news-card:hover {
+    transform: translateY(-5px);
+    border-color: #1a73e8;
+    box-shadow: 0 10px 25px rgba(26, 115, 232, 0.08);
+  }
+  .news-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 12px 0 8px 0;
+    line-height: 1.4;
+  }
+  .news-excerpt {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 深度還原：限制顯示兩行 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Filter Chip 樣式 */
+  .news-filter-chip {
+    padding: 8px 20px;
+    border-radius: 50px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .news-filter-chip.active {
+    background: #1a73e8;
+    color: #fff;
+    border-color: #1a73e8;
+    box-shadow: 0 4px 10px rgba(26, 115, 232, 0.2);
+  }
+</style>
+
+<script>
+  /**
+   * 深度還原：Filter Chip 切換邏輯
+   */
+  document.querySelectorAll(".news-filter-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      document
+        .querySelectorAll(".news-filter-chip")
+        .forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+
+      const type = chip.getAttribute("data-type");
+      if (window.loadNewsList) {
+        window.loadNewsList(false, type); // 呼叫全域加載函數進行過濾
+      }
+    });
+  });
+</script>

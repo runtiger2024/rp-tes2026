@@ -1,0 +1,253 @@
+<div class="recipient-section-wrapper animate-slide-up" style="padding: 10px">
+  <div
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      background: #fff;
+      padding: 15px 20px;
+      border-radius: 18px;
+      border: 1px solid #f1f5f9;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    "
+  >
+    <div>
+      <h4 style="margin: 0; font-weight: 800; color: #1e293b">
+        <i
+          class="fas fa-address-book"
+          style="color: #1a73e8; margin-right: 8px"
+        ></i
+        >我的常用收件人
+      </h4>
+      <p style="margin: 5px 0 0; font-size: 12px; color: #94a3b8">
+        快速帶入集運訂單，省去手打煩惱
+      </p>
+    </div>
+    <button
+      id="btn-add-recipient"
+      class="btn"
+      style="
+        background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+        color: white;
+        padding: 10px 18px;
+        border-radius: 14px;
+        font-weight: 800;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(26, 115, 232, 0.2);
+        transition: all 0.3s;
+      "
+      onmouseover="this.style.transform='translateY(-2px)'"
+      onmouseout="this.style.transform='translateY(0)'"
+    >
+      <i class="fas fa-plus"></i> 新增收件人
+    </button>
+  </div>
+
+  <div
+    id="recipients-list-container"
+    style="
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+      padding-bottom: 30px;
+    "
+  >
+    <div
+      style="
+        grid-column: 1/-1;
+        text-align: center;
+        padding: 60px;
+        color: #cbd5e1;
+      "
+    >
+      <i class="fas fa-spinner fa-spin fa-2x"></i>
+      <p style="margin-top: 15px; font-weight: 600">正在讀取您的地址簿...</p>
+    </div>
+  </div>
+
+  <div
+    id="recipients-empty-state"
+    style="
+      display: none;
+      text-align: center;
+      padding: 80px 20px;
+      color: #cbd5e1;
+    "
+  >
+    <div style="font-size: 60px; margin-bottom: 20px; opacity: 0.3">
+      <i class="fas fa-map-marked-alt"></i>
+    </div>
+    <h3 style="color: #94a3b8; font-weight: 800">尚無收件人資訊</h3>
+    <p style="margin-top: 10px">點擊上方按鈕建立您的第一個常用地址吧！</p>
+  </div>
+</div>
+
+<style>
+  /* 深度還原：收件人卡片旗艦版樣式 */
+  .rc-card {
+    background: #fff;
+    border: 1px solid #f1f5f9;
+    border-radius: 20px;
+    padding: 25px;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.01);
+  }
+
+  .rc-card:hover {
+    transform: translateY(-8px);
+    border-color: #1a73e8;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+  }
+
+  /* 預設標籤樣式 */
+  .badge-default {
+    background: #1a73e8;
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 50px;
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    box-shadow: 0 4px 8px rgba(26, 115, 232, 0.3);
+  }
+
+  .rc-name {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: #1e293b;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .rc-phone {
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 15px;
+  }
+
+  /* 資料列樣式：對應身分證與地址 */
+  .rc-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 12px;
+    font-size: 14px;
+    color: #475569;
+    line-height: 1.5;
+  }
+
+  .rc-row i {
+    color: #1a73e8;
+    margin-top: 3px;
+    width: 16px;
+    text-align: center;
+  }
+
+  /* 底部操作區 */
+  .rc-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px dashed #e2e8f0;
+  }
+
+  .rc-btn {
+    flex: 1;
+    padding: 8px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #64748b;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .rc-btn:hover {
+    background: #f8fafc;
+    color: #1a73e8;
+    border-color: #1a73e8;
+  }
+
+  .rc-btn-delete:hover {
+    background: #fff1f0;
+    color: #f5222d;
+    border-color: #ffa39e;
+  }
+</style>
+
+<script>
+  /**
+   * 深度還原：新增按鈕連動邏輯
+   * 對接 modal-manager.js 開啟新增彈窗
+   */
+  document.getElementById("btn-add-recipient").addEventListener("click", () => {
+    if (window.modalManager) {
+      window.modalManager.open("recipient-edit", { mode: "add" });
+    } else {
+      console.warn("Modal Manager not initialized.");
+    }
+  });
+
+  /**
+   * 深度還原：自定義資料渲染函數範例
+   * 實際運作會由 dashboard-recipient.js 調用
+   */
+  window.renderRecipientCard = function (rc) {
+    return `
+      <div class="rc-card" data-id="${rc.id}">
+        ${rc.isDefault ? '<span class="badge-default">預設收件人</span>' : ""}
+        <div class="rc-name">${rc.name}</div>
+        <div class="rc-phone"><i class="fas fa-phone-alt"></i> ${rc.phone}</div>
+        
+        <div class="rc-row">
+          <i class="fas fa-id-card"></i>
+          <div>身分證字號：<span class="text-mask">${
+            rc.idNumber || "未提供"
+          }</span></div>
+        </div>
+        <div class="rc-row">
+          <i class="fas fa-map-marker-alt"></i>
+          <div>${rc.address}</div>
+        </div>
+
+        <div class="rc-actions">
+          <button class="rc-btn" onclick="window.editRecipient('${rc.id}')">
+            <i class="fas fa-edit"></i> 編輯
+          </button>
+          <button class="rc-btn rc-btn-delete" onclick="window.deleteRecipient('${
+            rc.id
+          }')">
+            <i class="fas fa-trash-alt"></i> 刪除
+          </button>
+          ${
+            !rc.isDefault
+              ? `
+            <button class="rc-btn" onclick="window.setDefaultRecipient('${rc.id}')">
+              設為預設
+            </button>
+          `
+              : ""
+          }
+        </div>
+      </div>
+    `;
+  };
+</script>

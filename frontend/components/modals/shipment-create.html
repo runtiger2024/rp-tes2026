@@ -1,68 +1,337 @@
-<div id="shipment-create-modal" class="modal-overlay">
-  <div class="modal-content modal-lg">
-    <div class="modal-header">
-      <h3><i class="fas fa-truck-loading"></i> 確認集運訂單</h3>
-      <span class="modal-close">&times;</span>
+<div id="create-shipment-modal" class="modal-overlay" style="display: none">
+  <div class="modal-content modal-lg checkout-modal animate-pop-in">
+    <button class="modal-close" onclick="window.modalManager.close()">
+      &times;
+    </button>
+
+    <div
+      class="modal-header"
+      style="
+        border-bottom: 2px solid #f1f5f9;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+      "
+    >
+      <h3
+        style="
+          margin: 0;
+          color: #1e293b;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+        "
+      >
+        <i class="fas fa-boxes" style="color: #1a73e8; margin-right: 12px"></i
+        >確認訂單 (合併打包)
+      </h3>
     </div>
-    <form id="shipment-create-form" class="modal-body">
-      <div class="checkout-grid">
-        <div class="checkout-parcels">
-          <h5>待發貨清單</h5>
-          <div id="checkout-items-list" class="mini-parcel-list"></div>
+
+    <form id="create-shipment-form">
+      <div
+        class="checkout-layout"
+        style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 25px"
+      >
+        <div class="checkout-items-section">
+          <h4
+            style="
+              margin: 0 0 15px 0;
+              font-size: 16px;
+              color: #334155;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            📦 待打包包裹內容
+            <span style="font-size: 13px; color: #64748b; font-weight: normal"
+              >已選
+              <span
+                id="checkout-total-count"
+                style="color: #1a73e8; font-weight: 700"
+                >0</span
+              >
+              件</span
+            >
+          </h4>
+
+          <div
+            id="shipment-package-list"
+            class="custom-scrollbar"
+            style="
+              max-height: 280px;
+              overflow-y: auto;
+              margin-bottom: 20px;
+              border: 1.5px solid #e2e8f0;
+              border-radius: 12px;
+              background: #f8fafc;
+              padding: 10px;
+            "
+          ></div>
+
+          <div
+            class="cost-calculation-box"
+            style="
+              background: #fff;
+              border: 1.5px solid #e2e8f0;
+              border-radius: 16px;
+              padding: 20px;
+            "
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 10px;
+                font-size: 14px;
+                color: #64748b;
+              "
+            >
+              <span>預估總重量：</span>
+              <span
+                id="checkout-total-weight"
+                style="color: #1e293b; font-weight: 700"
+                >0.00 kg</span
+              >
+            </div>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 15px;
+                font-size: 14px;
+                color: #64748b;
+              "
+            >
+              <span>預估基本運費：</span>
+              <span
+                id="checkout-base-fee"
+                style="color: #1e293b; font-weight: 700"
+                >NT$ 0</span
+              >
+            </div>
+            <div
+              style="
+                border-top: 1px dashed #cbd5e1;
+                padding-top: 15px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              "
+            >
+              <span style="font-weight: 800; color: #1e293b">應付總金額：</span>
+              <span
+                id="checkout-final-total"
+                style="font-size: 24px; font-weight: 900; color: #d32f2f"
+                >NT$ 0</span
+              >
+            </div>
+          </div>
         </div>
-        <div class="checkout-forms">
-          <div class="form-group">
-            <label>收件人資料</label>
+
+        <div class="checkout-shipping-section">
+          <div
+            style="
+              background: #fff;
+              border: 1.5px solid #e2e8f0;
+              border-radius: 16px;
+              padding: 20px;
+              margin-bottom: 20px;
+            "
+          >
+            <h4 style="margin: 0 0 15px 0; font-size: 15px; color: #334155">
+              <i class="fas fa-truck" style="color: #1a73e8"></i> 配送資訊
+            </h4>
+
             <button
               type="button"
-              onclick="window.openRecipientSelector()"
-              class="btn-select-rc"
+              class="btn-select-address"
+              onclick="window.modalManager.open('recipient-selector')"
+              style="
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 15px;
+                border-radius: 10px;
+                border: 1px dashed #1a73e8;
+                background: #eff6ff;
+                color: #1a73e8;
+                font-weight: 700;
+                cursor: pointer;
+              "
             >
-              選擇常用收件人 <i class="fas fa-address-book"></i>
+              從常用收件人選擇
             </button>
-            <input
-              type="text"
-              id="ship-name"
-              class="form-control mt-10"
-              placeholder="姓名"
-              required
-            />
-            <input
-              type="tel"
-              id="ship-phone"
-              class="form-control mt-10"
-              placeholder="電話"
-              required
-            />
-            <input
-              type="text"
-              id="ship-address"
-              class="form-control mt-10"
-              placeholder="收貨地址"
-              required
-            />
+
+            <div class="form-group" style="margin-bottom: 12px">
+              <input
+                type="text"
+                id="ship-name"
+                class="form-control"
+                placeholder="收件人姓名"
+                required
+                style="
+                  width: 100%;
+                  padding: 12px;
+                  border-radius: 10px;
+                  border: 1.5px solid #e2e8f0;
+                "
+              />
+            </div>
+            <div class="form-group" style="margin-bottom: 12px">
+              <input
+                type="tel"
+                id="ship-phone"
+                class="form-control"
+                placeholder="聯繫電話"
+                required
+                style="
+                  width: 100%;
+                  padding: 12px;
+                  border-radius: 10px;
+                  border: 1.5px solid #e2e8f0;
+                "
+              />
+            </div>
+            <div class="form-group">
+              <textarea
+                id="ship-address"
+                class="form-control"
+                placeholder="台灣完整收件地址"
+                required
+                style="
+                  width: 100%;
+                  padding: 12px;
+                  border-radius: 10px;
+                  border: 1.5px solid #e2e8f0;
+                  height: 80px;
+                  resize: none;
+                "
+              ></textarea>
+            </div>
           </div>
-          <div class="form-group mt-15">
-            <label>身分證字號 (報關專用)</label>
-            <input
-              type="text"
-              id="ship-id-card"
-              class="form-control"
-              placeholder="A123456789"
-              required
-            />
+
+          <div
+            style="
+              background: #fdf2f2;
+              border: 1px solid #fecaca;
+              border-radius: 16px;
+              padding: 15px;
+            "
+          >
+            <h4 style="margin: 0 0 10px 0; font-size: 14px; color: #991b1b">
+              <i class="fas fa-credit-card"></i> 支付與發票
+            </h4>
+            <div
+              id="wallet-pay-info"
+              style="
+                font-size: 13px;
+                color: #b91c1c;
+                margin-bottom: 10px;
+                background: #fff;
+                padding: 8px;
+                border-radius: 8px;
+              "
+            >
+              正在檢查帳號餘額狀態...
+            </div>
+            <div style="font-size: 11px; color: #666; line-height: 1.5">
+              <i class="fas fa-info-circle"></i>
+              系統將自動開立電子發票。若需統編，請於付款憑證上傳時填寫。
+            </div>
           </div>
         </div>
       </div>
-      <div class="cost-summary-bar">
-        <div class="total-label">預估總運費：</div>
-        <div class="total-value">
-          NT$ <span id="checkout-total-fee">0</span>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn-confirm-ship">正式提交運單</button>
+
+      <div
+        class="modal-footer sticky-footer-actions"
+        style="
+          margin-top: 25px;
+          display: flex;
+          gap: 15px;
+          padding-top: 20px;
+          border-top: 1px solid #f1f5f9;
+        "
+      >
+        <button
+          type="button"
+          class="btn btn-secondary"
+          onclick="window.modalManager.close()"
+          style="
+            flex: 1;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 700;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+          "
+        >
+          取消重選
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          style="
+            flex: 2;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 800;
+            background: #1a73e8;
+            color: #fff;
+            border: none;
+            font-size: 17px;
+            box-shadow: 0 8px 20px rgba(26, 115, 232, 0.3);
+          "
+        >
+          <i class="fas fa-check-circle"></i> 正式提交集運訂單
+        </button>
       </div>
     </form>
   </div>
 </div>
+
+<style>
+  /* 深度還原：包裹卡片微縮樣式 */
+  .checkout-package-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .checkout-package-item .pkg-tracking {
+    font-family: monospace;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  .checkout-package-item .pkg-weight {
+    color: #1a73e8;
+    font-weight: 600;
+  }
+
+  /* 自定義滾動條 */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+  }
+</style>
+
+<script>
+  /**
+   * 深度還原：表單提交對接邏輯
+   * 此處會將集運數據傳送到 shipment-flow.js 進行處理
+   */
+  document
+    .getElementById("create-shipment-form")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+      if (window.shipmentFlow && window.shipmentFlow.submitShipment) {
+        await window.shipmentFlow.submitShipment();
+      }
+    });
+</script>

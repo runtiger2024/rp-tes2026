@@ -1,0 +1,428 @@
+<div
+  class="modal-content modal-lg animate-pop-in"
+  style="
+    background: #fdfdfe;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  "
+>
+  <div
+    class="modal-header"
+    style="
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+      padding: 20px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #f1f5f9;
+    "
+  >
+    <h3
+      class="d-flex align-center"
+      style="margin: 0; display: flex; align-items: center"
+    >
+      <div
+        style="
+          width: 8px;
+          height: 24px;
+          background: #1a73e8;
+          border-radius: 4px;
+          margin-right: 12px;
+        "
+      ></div>
+      <i
+        class="fas fa-file-invoice"
+        style="margin-right: 10px; color: #1a73e8"
+      ></i>
+      <span style="font-weight: 800; color: #1e293b">集運單深度檢閱報告</span>
+    </h3>
+    <div class="text-right" style="text-align: right">
+      <div
+        class="text-sub"
+        style="
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          color: #64748b;
+        "
+      >
+        Shipment ID
+      </div>
+      <div
+        class="fw-800 text-primary"
+        style="font-size: 1.1rem; font-weight: 800; color: #1a73e8"
+      >
+        #<span id="sd-id">--</span>
+      </div>
+    </div>
+    <button
+      class="modal-close"
+      onclick="document.getElementById('shipment-details-modal').style.display='none'"
+      style="
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 5px;
+      "
+    >
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <div class="modal-body" style="padding: 25px; background: #fff">
+    <div id="sd-timeline" class="mb-4" style="margin-bottom: 25px"></div>
+
+    <div class="mb-4" style="margin-bottom: 25px">
+      <div
+        class="info-card-mini"
+        style="
+          text-align: center;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          padding: 15px;
+          border-radius: 12px;
+        "
+      >
+        <div
+          class="label"
+          style="
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 5px;
+            font-weight: 700;
+            text-transform: uppercase;
+          "
+        >
+          <i class="far fa-clock"></i> 訂單建立時間
+        </div>
+        <div
+          id="sd-date"
+          class="value"
+          style="color: #1e293b; font-size: 1.1rem; font-weight: 800"
+        >
+          --
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="detail-section"
+      style="
+        margin-bottom: 25px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+      "
+    >
+      <div
+        class="section-title"
+        style="
+          background: #f0f7ff;
+          padding: 12px 20px;
+          font-size: 14px;
+          font-weight: 800;
+          color: #1a73e8;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          border-bottom: 1px solid #e2e8f0;
+        "
+      >
+        <i class="fas fa-map-marker-alt"></i>
+        <span>配送資訊</span>
+      </div>
+      <div
+        class="section-body info-grid"
+        style="
+          padding: 20px;
+          background: #fff;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        "
+      >
+        <div
+          class="info-row"
+          style="
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #f1f5f9;
+            padding-bottom: 8px;
+          "
+        >
+          <span class="info-label" style="color: #64748b; font-weight: 600"
+            >收件人</span
+          >
+          <span
+            id="sd-name"
+            class="info-value"
+            style="color: #1e293b; font-weight: 700"
+            >--</span
+          >
+        </div>
+        <div
+          class="info-row"
+          style="
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #f1f5f9;
+            padding-bottom: 8px;
+          "
+        >
+          <span class="info-label" style="color: #64748b; font-weight: 600"
+            >聯繫電話</span
+          >
+          <span
+            id="sd-phone"
+            class="info-value"
+            style="color: #1e293b; font-weight: 700"
+            >--</span
+          >
+        </div>
+        <div
+          class="info-row"
+          style="
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #f1f5f9;
+            padding-bottom: 8px;
+          "
+        >
+          <span class="info-label" style="color: #64748b; font-weight: 600"
+            >配送地址</span
+          >
+          <span
+            id="sd-address"
+            class="info-value"
+            style="color: #1e293b; font-weight: 700; text-align: right"
+            >--</span
+          >
+        </div>
+        <div
+          class="info-row-highlight"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #fffbe6;
+            border-radius: 8px;
+            border: 1px solid #ffe58f;
+          "
+        >
+          <span class="info-label" style="color: #856404; font-weight: 600"
+            >物流追蹤碼 (TW)</span
+          >
+          <div
+            class="d-flex align-center"
+            style="display: flex; align-items: center"
+          >
+            <span
+              id="sd-trackingTW"
+              class="fw-800"
+              style="font-weight: 800; color: #1e293b"
+              >尚未產生</span
+            >
+            <i
+              class="far fa-copy ml-2 text-sub"
+              style="cursor: pointer; margin-left: 10px; color: #94a3b8"
+              onclick="copyText('sd-trackingTW')"
+              title="點擊複製"
+            ></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="sd-services-section"
+      class="detail-section"
+      style="
+        display: none;
+        margin-bottom: 25px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+      "
+    >
+      <div
+        class="section-title"
+        style="
+          background: #f0f7ff;
+          padding: 12px 20px;
+          font-size: 14px;
+          font-weight: 800;
+          color: #1a73e8;
+          border-bottom: 1px solid #e2e8f0;
+        "
+      >
+        <i class="fas fa-concierge-bell"></i>
+        <span>加值服務需求</span>
+      </div>
+      <div
+        id="sd-services-list"
+        class="section-body info-grid"
+        style="padding: 15px 20px"
+      ></div>
+    </div>
+
+    <div
+      class="detail-section"
+      style="
+        margin-bottom: 25px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+      "
+    >
+      <div
+        class="section-title"
+        style="
+          background: #f0f7ff;
+          padding: 12px 20px;
+          font-size: 14px;
+          font-weight: 800;
+          color: #1a73e8;
+          border-bottom: 1px solid #e2e8f0;
+        "
+      >
+        <i class="fas fa-coins"></i>
+        <span>費用報告單 (透明化稽核)</span>
+      </div>
+      <div
+        id="sd-fee-breakdown"
+        class="receipt-style"
+        style="background: #fff; padding: 0px; overflow-x: auto"
+      >
+        <div
+          class="text-center p-4 text-sub"
+          style="text-align: center; padding: 30px; color: #94a3b8"
+        >
+          <i class="fas fa-spinner fa-spin"></i> 正在解析深度計算報告...
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal-footer"
+      style="
+        background: #f8fafc;
+        padding: 20px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #f1f5f9;
+      "
+    >
+      <div style="font-size: 12px; color: #94a3b8">
+        <i class="fas fa-info-circle"></i> 數據根據後台測量結果自動生成
+      </div>
+      <div class="d-flex gap-10" style="display: flex; gap: 10px">
+        <button
+          class="btn btn-outline-primary"
+          onclick="window.print()"
+          style="
+            padding: 8px 20px;
+            border-radius: 50px;
+            background: #fff;
+            border: 1.5px solid #1a73e8;
+            color: #1a73e8;
+            font-weight: 700;
+            cursor: pointer;
+          "
+        >
+          <i class="fas fa-print"></i> 列印報告
+        </button>
+        <button
+          class="btn btn-secondary"
+          onclick="document.getElementById('shipment-details-modal').style.display='none'"
+          style="
+            padding: 8px 30px;
+            border-radius: 50px;
+            background: #64748b;
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+          "
+        >
+          關閉詳情
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* 深度還原：報告單專用穩定性樣式 */
+    .receipt-style table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .receipt-style th {
+      background: #fafafa;
+      padding: 12px;
+      color: #475569;
+      border-bottom: 2px solid #e2e8f0;
+      text-align: left;
+      font-size: 13px;
+    }
+    .receipt-style td {
+      padding: 12px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #1e293b;
+      font-size: 14px;
+    }
+
+    /* 響應式：手機 App 模式優化 */
+    @media (max-width: 600px) {
+      .info-row {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 4px;
+      }
+      .modal-footer {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+    }
+
+    /* 深度還原：列印優化 (隱藏不必要元素) */
+    @media print {
+      .modal-close,
+      .modal-footer button {
+        display: none !important;
+      }
+      .modal-content {
+        box-shadow: none !important;
+        border: none !important;
+      }
+      body {
+        background: white !important;
+      }
+    }
+  </style>
+</div>
+
+<script>
+  /**
+   * 深度還原：剪貼簿複製邏輯
+   * 確保用戶能快速複製 TW 物流單號進行查詢
+   */
+  function copyText(elementId) {
+    const text = document.getElementById(elementId).innerText;
+    if (text === "尚未產生") return;
+
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        alert("物流單號已複製: " + text);
+      })
+      .catch((err) => {
+        console.error("無法複製文字: ", err);
+      });
+  }
+</script>
