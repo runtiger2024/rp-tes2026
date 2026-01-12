@@ -1,0 +1,431 @@
+<div
+  class="modal-content modal-lg animate-pop-in"
+  style="max-width: 800px; width: 95%; border-radius: 20px"
+>
+  <div
+    class="modal-header"
+    style="background: #1a73e8; color: white; padding: 20px 25px"
+  >
+    <h3
+      style="
+        margin: 0;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      "
+    >
+      <i class="fas fa-box-check"></i>
+      <span id="modal-title">包裹入庫詳情與審核</span>
+    </h3>
+    <button
+      class="modal-close"
+      onclick="window.modalManager.close()"
+      style="color: white; opacity: 0.8"
+    >
+      &times;
+    </button>
+  </div>
+
+  <form
+    id="admin-parcel-form"
+    class="modal-body"
+    style="padding: 25px; background: #f8fafc"
+  >
+    <input type="hidden" id="modal-pkg-id" />
+
+    <div
+      class="admin-section-card"
+      style="
+        background: #fff;
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 20px;
+      "
+    >
+      <label
+        style="
+          display: block;
+          font-size: 13px;
+          font-weight: 800;
+          color: #1a73e8;
+          margin-bottom: 12px;
+          text-transform: uppercase;
+        "
+      >
+        <i class="fas fa-user-circle"></i> 歸屬會員 (Owner Information)
+      </label>
+      <div
+        id="modal-user-display"
+        style="
+          padding: 10px;
+          background: #f1f5f9;
+          border-radius: 10px;
+          font-weight: 700;
+          color: #334155;
+          margin-bottom: 10px;
+        "
+      >
+        載入用戶資訊中...
+      </div>
+
+      <div id="create-user-search-area" style="display: none">
+        <div style="display: flex; gap: 10px">
+          <input
+            type="text"
+            id="admin-customer-search"
+            class="form-control"
+            placeholder="輸入 Email 或姓名搜尋會員..."
+            style="flex: 1; border-radius: 10px"
+          />
+          <button
+            type="button"
+            id="btn-set-unclaimed"
+            class="btn btn-warning"
+            style="white-space: nowrap; border-radius: 10px; font-weight: 700"
+          >
+            <i class="fas fa-user-secret"></i> 設為無主件
+          </button>
+        </div>
+        <div
+          id="admin-customer-search-results"
+          class="search-dropdown-box"
+        ></div>
+        <input type="hidden" id="admin-create-userId" />
+      </div>
+    </div>
+
+    <div
+      style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      "
+    >
+      <div class="form-group">
+        <label
+          style="
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #475569;
+          "
+          >物流單號</label
+        >
+        <input
+          type="text"
+          id="modal-trackingNumber"
+          class="form-control"
+          required
+          style="border-radius: 10px; font-family: monospace; font-weight: 700"
+        />
+      </div>
+      <div class="form-group">
+        <label
+          style="
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #475569;
+          "
+          >狀態</label
+        >
+        <select
+          id="modal-status"
+          class="form-control"
+          style="border-radius: 10px; font-weight: 700"
+        >
+          <option value="PENDING">📦 待入庫 (已預報)</option>
+          <option value="ARRIVED">🏠 已入庫 (倉庫簽收)</option>
+          <option value="IN_SHIPMENT">🚢 集運中</option>
+          <option value="COMPLETED">✅ 已完成</option>
+          <option value="CANCELLED">❌ 已取消</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label
+          style="
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #475569;
+          "
+          >商品名稱</label
+        >
+        <input
+          type="text"
+          id="modal-productName"
+          class="form-control"
+          required
+          style="border-radius: 10px"
+        />
+      </div>
+      <div class="form-group">
+        <label
+          style="
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #475569;
+          "
+          >申報數量</label
+        >
+        <input
+          type="number"
+          id="modal-quantity"
+          class="form-control"
+          min="1"
+          style="border-radius: 10px"
+        />
+      </div>
+    </div>
+
+    <div
+      id="boxes-section"
+      class="admin-section-card"
+      style="
+        background: #fff;
+        padding: 20px;
+        border-radius: 16px;
+        border: 1.5px solid #e2e8f0;
+        margin-bottom: 20px;
+      "
+    >
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 15px;
+        "
+      >
+        <label
+          style="
+            font-size: 13px;
+            font-weight: 800;
+            color: #1a73e8;
+            text-transform: uppercase;
+          "
+        >
+          <i class="fas fa-ruler-combined"></i> 倉庫測量數據 (分箱明細)
+        </label>
+        <button
+          type="button"
+          id="btn-add-sub-package"
+          class="btn btn-sm btn-outline-primary"
+          style="border-radius: 8px; font-size: 12px"
+        >
+          <i class="fas fa-plus"></i> 增加分箱
+        </button>
+      </div>
+
+      <div
+        id="sub-package-list"
+        style="display: flex; flex-direction: column; gap: 10px"
+      ></div>
+
+      <div
+        style="
+          margin-top: 20px;
+          padding: 15px;
+          background: #fffbe6;
+          border: 1px solid #ffe58f;
+          border-radius: 12px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <div>
+          <span style="font-weight: 700; color: #856404"
+            >預估運費金額 (Est. Fee)</span
+          >
+          <div
+            id="modal-fee-tips"
+            style="font-size: 11px; color: #b7791f; margin-top: 4px"
+          >
+            計算邏輯：根據重量與體積擇優
+          </div>
+        </div>
+        <div style="text-align: right">
+          <span style="font-size: 20px; font-weight: 900; color: #d32f2f"
+            >NT$ <span id="modal-shippingFee-display">0</span></span
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 25px">
+      <label
+        style="
+          display: block;
+          margin-bottom: 10px;
+          font-weight: 800;
+          color: #1e293b;
+        "
+      >
+        <i class="fas fa-camera-retro"></i> 倉庫入庫實拍照片 (Warehouse Photos)
+      </label>
+      <div
+        class="upload-container"
+        style="display: grid; grid-template-columns: 120px 1fr; gap: 15px"
+      >
+        <label
+          for="modal-warehouseImages"
+          class="admin-upload-zone"
+          style="
+            height: 100px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: #fff;
+          "
+        >
+          <i
+            class="fas fa-cloud-upload-alt"
+            style="font-size: 24px; color: #94a3b8"
+          ></i>
+          <span style="font-size: 11px; color: #64748b; margin-top: 5px"
+            >點擊上傳</span
+          >
+        </label>
+        <input
+          type="file"
+          id="modal-warehouseImages"
+          multiple
+          accept="image/*"
+          style="display: none"
+        />
+        <div
+          id="modal-warehouse-images-preview"
+          style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center"
+        ></div>
+      </div>
+    </div>
+
+    <div
+      class="modal-footer"
+      style="
+        padding-top: 20px;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        gap: 15px;
+      "
+    >
+      <button
+        type="button"
+        class="btn btn-secondary"
+        onclick="window.modalManager.close()"
+        style="
+          flex: 1;
+          padding: 12px;
+          border-radius: 12px;
+          font-weight: 700;
+          background: #fff;
+          border: 1px solid #cbd5e1;
+          color: #64748b;
+        "
+      >
+        取消關閉
+      </button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        style="
+          flex: 2;
+          padding: 12px;
+          border-radius: 12px;
+          font-weight: 800;
+          background: #1a73e8;
+          color: #fff;
+          border: none;
+          box-shadow: 0 4px 12px rgba(26, 115, 232, 0.25);
+        "
+      >
+        <i class="fas fa-save"></i> 儲存包裹數據並更新狀態
+      </button>
+    </div>
+  </form>
+</div>
+
+<style>
+  /* 管理端專用微縮樣式 */
+  .search-dropdown-box {
+    position: absolute;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    z-index: 100;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    display: none;
+  }
+  .search-result-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .search-result-item:hover {
+    background: #f0f7ff;
+    color: #1a73e8;
+  }
+
+  .sub-pkg-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 40px;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .sub-pkg-input {
+    padding: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13px;
+    text-align: center;
+  }
+</style>
+
+<script>
+  /**
+   * 深度還原：管理端分箱與圖片預覽邏輯
+   */
+  const warehouseFileInput = document.getElementById("modal-warehouseImages");
+  const warehousePreviewContainer = document.getElementById(
+    "modal-warehouse-images-preview"
+  );
+
+  warehouseFileInput.addEventListener("change", function (e) {
+    // 這裡實作多圖即時預覽，確保倉庫人員確認照片清晰
+    Array.from(e.target.files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const imgWrap = document.createElement("div");
+        imgWrap.style.cssText =
+          "position:relative; width:60px; height:60px; border-radius:8px; overflow:hidden; border:1px solid #e2e8f0;";
+        imgWrap.innerHTML = `<img src="${event.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+        warehousePreviewContainer.appendChild(imgWrap);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  // 串接 admin.api.js 的儲存邏輯
+  document
+    .getElementById("admin-parcel-form")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+      // 呼叫後台模組進行儲存
+      if (window.adminOpsModule) {
+        await window.adminOpsModule.saveParcelDetails();
+      }
+    });
+</script>

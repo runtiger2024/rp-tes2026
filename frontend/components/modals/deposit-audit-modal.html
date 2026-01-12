@@ -1,0 +1,353 @@
+<div
+  class="modal-content animate-pop-in"
+  style="
+    width: 700px;
+    max-width: 95%;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+  "
+>
+  <div
+    class="modal-header"
+    style="
+      background: #0891b2;
+      color: white;
+      padding: 20px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    "
+  >
+    <h3
+      style="
+        margin: 0;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      "
+    >
+      <i class="fas fa-file-invoice-dollar"></i>
+      <span>財務儲值憑證審核</span>
+    </h3>
+    <button
+      class="modal-close"
+      onclick="window.modalManager.close()"
+      style="
+        color: white;
+        opacity: 0.8;
+        background: transparent;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+      "
+    >
+      &times;
+    </button>
+  </div>
+
+  <div class="modal-body" style="padding: 25px; background: #f8fafc">
+    <input type="hidden" id="da-id" />
+
+    <div
+      style="
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+      "
+    >
+      <div
+        class="admin-section-card"
+        style="
+          background: #fff;
+          padding: 15px;
+          border-radius: 16px;
+          border: 1px solid #e2e8f0;
+        "
+      >
+        <label
+          style="
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: #64748b;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+          "
+          >申請會員</label
+        >
+        <div id="da-user-info" style="font-weight: 700; color: #1e293b">
+          載入中...
+        </div>
+        <div
+          id="da-piggy-id"
+          style="
+            font-family: monospace;
+            font-size: 12px;
+            color: #0891b2;
+            margin-top: 3px;
+          "
+        >
+          --
+        </div>
+      </div>
+      <div
+        class="admin-section-card"
+        style="
+          background: #fff;
+          padding: 15px;
+          border-radius: 16px;
+          border: 1px solid #e2e8f0;
+        "
+      >
+        <label
+          style="
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: #64748b;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+          "
+          >申請日期</label
+        >
+        <div id="da-created-at" style="font-weight: 700; color: #1e293b">
+          --
+        </div>
+      </div>
+    </div>
+
+    <div
+      style="
+        background: #fff;
+        padding: 20px;
+        border-radius: 18px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 20px;
+      "
+    >
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 15px;
+          padding-bottom: 15px;
+          border-bottom: 1px dashed #e2e8f0;
+        "
+      >
+        <span style="font-weight: 800; color: #475569">欲儲值金額</span>
+        <span style="font-size: 1.8rem; font-weight: 900; color: #d32f2f"
+          >NT$ <span id="da-amount">0</span></span
+        >
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
+        <div>
+          <label
+            style="
+              display: block;
+              font-size: 12px;
+              color: #64748b;
+              margin-bottom: 4px;
+            "
+            >轉帳備註 / 末五碼</label
+          >
+          <div
+            id="da-note"
+            style="
+              font-weight: 700;
+              color: #1e293b;
+              background: #f1f5f9;
+              padding: 8px 12px;
+              border-radius: 8px;
+            "
+          >
+            --
+          </div>
+        </div>
+        <div id="da-b2b-section">
+          <label
+            style="
+              display: block;
+              font-size: 12px;
+              color: #64748b;
+              margin-bottom: 4px;
+            "
+            >B2B 發票資訊</label
+          >
+          <div style="font-size: 13px; color: #1e293b; font-weight: 600">
+            統編: <span id="da-taxId">--</span><br />
+            抬頭: <span id="da-invoiceTitle">--</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 20px">
+      <label
+        style="
+          display: block;
+          font-size: 13px;
+          font-weight: 800;
+          color: #1e293b;
+          margin-bottom: 10px;
+        "
+      >
+        <i class="fas fa-camera"></i> 用戶上傳之匯款憑證 (點擊圖片放大)
+      </label>
+      <div
+        id="da-proof-container"
+        style="
+          width: 100%;
+          height: 250px;
+          background: #f1f5f9;
+          border-radius: 16px;
+          overflow: hidden;
+          border: 1px solid #cbd5e1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        "
+      >
+        <img
+          id="da-proof-img"
+          src=""
+          style="
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            cursor: zoom-in;
+          "
+          onclick="window.open(this.src, '_blank')"
+        />
+        <div
+          id="da-no-proof"
+          style="display: none; color: #94a3b8; text-align: center"
+        >
+          <i class="fas fa-image-slash fa-3x"></i><br />未上傳憑證圖片
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="da-audit-form"
+      style="
+        background: #fff5f5;
+        padding: 15px;
+        border-radius: 16px;
+        border: 1px solid #fee2e2;
+      "
+    >
+      <label
+        style="
+          display: block;
+          font-size: 13px;
+          font-weight: 700;
+          color: #991b1b;
+          margin-bottom: 8px;
+        "
+        >駁回原因 (若需駁回才需填寫)</label
+      >
+      <textarea
+        id="da-reject-reason"
+        class="form-control"
+        placeholder="例如：金額不符、憑證模糊、查無此帳號入帳..."
+        style="
+          width: 100%;
+          padding: 10px;
+          border-radius: 10px;
+          border: 1.5px solid #fca5a5;
+          height: 60px;
+          resize: none;
+        "
+      ></textarea>
+    </div>
+
+    <div
+      class="modal-footer"
+      style="
+        padding-top: 25px;
+        margin-top: 20px;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        gap: 15px;
+      "
+    >
+      <button
+        type="button"
+        id="btn-da-reject"
+        class="btn"
+        style="
+          flex: 1;
+          padding: 12px;
+          border-radius: 12px;
+          font-weight: 800;
+          background: #fff;
+          border: 1.5px solid #ef4444;
+          color: #ef4444;
+          cursor: pointer;
+        "
+      >
+        <i class="fas fa-times-circle"></i> 駁回申請
+      </button>
+      <button
+        type="button"
+        id="btn-da-approve"
+        class="btn"
+        style="
+          flex: 2;
+          padding: 12px;
+          border-radius: 12px;
+          font-weight: 800;
+          background: #22c55e;
+          color: #fff;
+          border: none;
+          box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
+          cursor: pointer;
+        "
+      >
+        <i class="fas fa-check-double"></i> 確認入帳並增加餘額
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  /**
+   * 深度還原：管理端財務審核邏輯
+   * 對接 window.adminFinanceModule 執行 API 調用
+   */
+  document
+    .getElementById("btn-da-approve")
+    .addEventListener("click", async function () {
+      if (
+        confirm(
+          "您是否已在網銀確認收到此筆 NT$ " +
+            document.getElementById("da-amount").innerText +
+            " 的款項？\n確認後系統將立即自動儲值至該用戶錢包。"
+        )
+      ) {
+        if (window.adminFinanceModule) {
+          await window.adminFinanceModule.auditDeposit("COMPLETED");
+        }
+      }
+    });
+
+  document
+    .getElementById("btn-da-reject")
+    .addEventListener("click", async function () {
+      const reason = document.getElementById("da-reject-reason").value.trim();
+      if (!reason) {
+        alert("駁回申請時，必須填寫駁回原因！");
+        return;
+      }
+      if (confirm("確定要駁回此筆儲值申請嗎？")) {
+        if (window.adminFinanceModule) {
+          await window.adminFinanceModule.auditDeposit("REJECTED", reason);
+        }
+      }
+    });
+</script>

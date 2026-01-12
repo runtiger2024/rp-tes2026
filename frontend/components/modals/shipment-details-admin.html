@@ -1,0 +1,368 @@
+<div
+  class="modal-content modal-lg animate-pop-in"
+  style="
+    width: 1000px;
+    max-width: 95%;
+    border-radius: 24px;
+    overflow: hidden;
+    background: #fdfdfe;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+  "
+>
+  <div
+    class="modal-header report-header"
+    style="
+      background: #1e293b;
+      color: white;
+      padding: 25px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    "
+  >
+    <div>
+      <h2
+        style="
+          margin: 0;
+          font-size: 1.5rem;
+          font-weight: 900;
+          display: flex;
+          align-items: center;
+          gap: 15px;
+        "
+      >
+        <i class="fas fa-file-chart-pie" style="color: #60a5fa"></i>
+        <span>集運單業務稽核報告</span>
+      </h2>
+      <div
+        style="
+          margin-top: 5px;
+          opacity: 0.8;
+          font-size: 13px;
+          font-family: monospace;
+        "
+      >
+        Shipment ID:
+        <span id="sda-id" style="color: #fff; font-weight: 700">--</span>
+      </div>
+    </div>
+    <div style="text-align: right">
+      <span id="sda-status-badge" class="status-badge-lg">載入中</span>
+      <div style="margin-top: 8px; font-size: 12px; color: #94a3b8">
+        <i class="far fa-calendar-alt"></i> 建立日期:
+        <span id="sda-created-at">--</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-body" style="padding: 30px; background: #fff">
+    <div
+      class="specs-grid-admin"
+      style="
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-bottom: 30px;
+      "
+    >
+      <div class="spec-card-admin">
+        <label>總計件數</label>
+        <div id="sda-total-count" class="val">0 <small>Pkgs</small></div>
+      </div>
+      <div class="spec-card-admin">
+        <label>總實際重量</label>
+        <div id="sda-total-weight" class="val">0.0 <small>kg</small></div>
+      </div>
+      <div class="spec-card-admin">
+        <label>總體積數據</label>
+        <div id="sda-total-volume" class="val">0.00 <small>CBM</small></div>
+      </div>
+      <div class="spec-card-admin highlight">
+        <label>計費才數</label>
+        <div id="sda-total-材" class="val">0.0 <small>材</small></div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px">
+      <div>
+        <h4 class="section-title-admin">
+          <i class="fas fa-list-ol"></i> 貨物明細清單
+        </h4>
+        <div
+          class="table-wrapper-admin custom-scrollbar"
+          style="
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+          "
+        >
+          <table
+            class="report-table-admin"
+            style="width: 100%; border-collapse: collapse"
+          >
+            <thead>
+              <tr
+                style="
+                  background: #f8fafc;
+                  position: sticky;
+                  top: 0;
+                  z-index: 1;
+                "
+              >
+                <th>物流單號 / 品名</th>
+                <th>規格 (L*W*H)</th>
+                <th>重量</th>
+                <th>費用</th>
+              </tr>
+            </thead>
+            <tbody id="sda-package-list"></tbody>
+          </table>
+        </div>
+
+        <div style="margin-top: 20px">
+          <h4 class="section-title-admin">
+            <i class="fas fa-truck-loading"></i> 配送與物流追蹤
+          </h4>
+          <div class="info-box-admin">
+            <div class="row-admin">
+              <span>收件人：</span><strong id="sda-recipient">--</strong>
+            </div>
+            <div class="row-admin">
+              <span>電話：</span><strong id="sda-phone">--</strong>
+            </div>
+            <div class="row-admin">
+              <span>地址：</span><strong id="sda-address">--</strong>
+            </div>
+            <div class="row-admin highlight">
+              <span>台灣端單號：</span
+              ><strong
+                id="sda-tracking-tw"
+                style="color: #1a73e8; font-family: monospace"
+                >--</strong
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="section-title-admin">
+          <i class="fas fa-money-check-alt"></i> 費用深度解構 (Costs)
+        </h4>
+        <div class="financial-summary-admin">
+          <div class="fee-row">
+            <span>基礎運費總計</span>
+            <span id="sda-base-fee">NT$ 0</span>
+          </div>
+          <div class="fee-row">
+            <span>附加服務費 (木架/驗貨)</span>
+            <span id="sda-service-fee">NT$ 0</span>
+          </div>
+          <div class="fee-row">
+            <span>超長/超重附加費</span>
+            <span id="sda-extra-fee">NT$ 0</span>
+          </div>
+          <div class="fee-row adjustment">
+            <span>管理員手動調整</span>
+            <span id="sda-adjustment">NT$ 0</span>
+          </div>
+          <div class="fee-total-row">
+            <span>應收總金額 (Final Total)</span>
+            <span id="sda-final-total">NT$ 0</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 25px">
+          <h4 class="section-title-admin">
+            <i class="fas fa-user-shield"></i> 管理員內部備註
+          </h4>
+          <div
+            id="sda-admin-note"
+            style="
+              background: #fffbe6;
+              padding: 15px;
+              border-radius: 12px;
+              border: 1px solid #ffe58f;
+              font-size: 14px;
+              color: #856404;
+              min-height: 80px;
+            "
+          >
+            無內部備註內容
+          </div>
+        </div>
+
+        <div
+          style="
+            margin-top: 25px;
+            padding: 20px;
+            background: #f1f5f9;
+            border-radius: 15px;
+          "
+        >
+          <h4 style="margin: 0 0 10px 0; font-size: 14px; color: #475569">
+            訂單生命週期
+          </h4>
+          <div id="sda-timeline-mini" class="timeline-mini-admin"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="modal-footer"
+    style="
+      padding: 20px 30px;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    "
+  >
+    <div style="color: #94a3b8; font-size: 12px">
+      <i class="fas fa-info-circle"></i> 此報告為管理端內部稽核專用
+    </div>
+    <div style="display: flex; gap: 12px">
+      <button onclick="window.print()" class="btn-admin-secondary">
+        <i class="fas fa-print"></i> 列印報告
+      </button>
+      <button
+        onclick="window.adminShipmentModule.openEditFromDetails()"
+        class="btn-admin-primary"
+      >
+        <i class="fas fa-edit"></i> 進入編輯模式
+      </button>
+      <button onclick="window.modalManager.close()" class="btn-admin-close">
+        關閉詳情
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* 管理端專用詳情樣式 */
+  .section-title-admin {
+    font-size: 15px;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title-admin i {
+    color: #1a73e8;
+  }
+
+  /* 規格卡片樣式 */
+  .spec-card-admin {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    padding: 15px;
+    border-radius: 14px;
+    text-align: center;
+  }
+  .spec-card-admin label {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .spec-card-admin .val {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #1e293b;
+  }
+  .spec-card-admin.highlight {
+    background: #eff6ff;
+    border-color: #3b82f6;
+  }
+  .spec-card-admin.highlight .val {
+    color: #1a73e8;
+  }
+
+  /* 表格樣式 */
+  .report-table-admin th {
+    text-align: left;
+    padding: 12px 15px;
+    font-size: 12px;
+    color: #64748b;
+    border-bottom: 2px solid #f1f5f9;
+  }
+  .report-table-admin td {
+    padding: 12px 15px;
+    font-size: 13px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  /* 財務彙總樣式 */
+  .financial-summary-admin {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+  }
+  .fee-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    color: #64748b;
+    font-size: 14px;
+  }
+  .fee-row.adjustment {
+    color: #d97706;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed #e2e8f0;
+  }
+  .fee-total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #d32f2f;
+  }
+
+  /* 狀態標籤 */
+  .status-badge-lg {
+    background: #1a73e8;
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 14px;
+  }
+
+  /* 按鈕樣式 */
+  .btn-admin-primary {
+    background: #1a73e8;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-admin-secondary {
+    background: white;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-admin-close {
+    background: #64748b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+</style>

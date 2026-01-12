@@ -1,0 +1,416 @@
+<div
+  class="modal-content animate-pop-in"
+  style="
+    width: 850px;
+    max-width: 95%;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+  "
+>
+  <div
+    class="modal-header"
+    style="
+      background: #1e293b;
+      color: white;
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    "
+  >
+    <h3
+      style="
+        margin: 0;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      "
+    >
+      <i class="fas fa-edit"></i>
+      <span id="content-modal-title">編輯內容資訊</span>
+    </h3>
+    <button
+      class="modal-close"
+      onclick="window.modalManager.close()"
+      style="
+        color: white;
+        opacity: 0.8;
+        background: transparent;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+      "
+    >
+      &times;
+    </button>
+  </div>
+
+  <form
+    id="admin-content-form"
+    class="modal-body"
+    style="padding: 30px; background: #f8fafc"
+  >
+    <input type="hidden" id="content-id" />
+    <input type="hidden" id="content-type" />
+    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px">
+      <div class="editor-main-zone">
+        <div class="form-group mb-4">
+          <label
+            style="
+              display: block;
+              font-weight: 800;
+              color: #1e293b;
+              margin-bottom: 10px;
+            "
+          >
+            <span class="label-news">公告標題 (Title)</span>
+            <span class="label-faq" style="display: none"
+              >問題描述 (Question)</span
+            >
+          </label>
+          <input
+            type="text"
+            id="content-title"
+            class="form-control"
+            required
+            placeholder="請輸入標題內容..."
+            style="
+              width: 100%;
+              padding: 12px 15px;
+              border-radius: 12px;
+              border: 1.5px solid #e2e8f0;
+              font-size: 1.1rem;
+              font-weight: 700;
+            "
+          />
+        </div>
+
+        <div class="form-group mb-4">
+          <label
+            style="
+              display: block;
+              font-weight: 800;
+              color: #1e293b;
+              margin-bottom: 10px;
+            "
+          >
+            <span class="label-news">公告內文 (Content)</span>
+            <span class="label-faq" style="display: none"
+              >問題解答 (Answer)</span
+            >
+          </label>
+          <textarea
+            id="content-body"
+            class="form-control"
+            required
+            placeholder="支援換行與基本排版..."
+            style="
+              width: 100%;
+              height: 300px;
+              padding: 15px;
+              border-radius: 12px;
+              border: 1.5px solid #e2e8f0;
+              line-height: 1.6;
+              resize: none;
+            "
+          ></textarea>
+        </div>
+
+        <div class="form-group mb-4 field-news-only">
+          <label
+            style="
+              display: block;
+              font-weight: 800;
+              color: #64748b;
+              margin-bottom: 8px;
+              font-size: 13px;
+            "
+          >
+            內容摘要 (顯示於列表頁，建議 50 字以內)
+          </label>
+          <textarea
+            id="content-excerpt"
+            class="form-control"
+            placeholder="若不填寫將自動擷取正文前 50 字..."
+            style="
+              width: 100%;
+              height: 70px;
+              padding: 10px;
+              border-radius: 10px;
+              border: 1px solid #e2e8f0;
+              font-size: 13px;
+            "
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="editor-side-zone">
+        <div
+          class="admin-section-card"
+          style="
+            background: #fff;
+            padding: 20px;
+            border-radius: 18px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+          "
+        >
+          <label
+            style="
+              display: block;
+              font-size: 13px;
+              font-weight: 800;
+              color: #1a73e8;
+              margin-bottom: 15px;
+              text-transform: uppercase;
+            "
+          >
+            <i class="fas fa-tag"></i> 分類標籤
+          </label>
+
+          <div class="field-news-only">
+            <select
+              id="news-category"
+              class="form-control"
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 10px;
+                font-weight: 700;
+              "
+            >
+              <option value="ANNOUNCEMENT">🔴 重要公告 (Announcement)</option>
+              <option value="HOLIDAY">🟠 節假日通知 (Holiday)</option>
+              <option value="PROMOTION">🟢 優惠活動 (Promotion)</option>
+              <option value="MAINTENANCE">🔵 系統維護 (Maintenance)</option>
+              <option value="GENERAL" selected>⚪ 一般消息 (General)</option>
+            </select>
+          </div>
+
+          <div class="field-faq-only" style="display: none">
+            <select
+              id="faq-category"
+              class="form-control"
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 10px;
+                font-weight: 700;
+              "
+            >
+              <option value="shipping">📦 集運流程 (Shipping)</option>
+              <option value="furniture">🛋️ 家具專線 (Furniture)</option>
+              <option value="payment">💳 支付相關 (Payment)</option>
+              <option value="others">❓ 其他問題 (Others)</option>
+            </select>
+          </div>
+        </div>
+
+        <div
+          class="admin-section-card"
+          style="
+            background: #fff;
+            padding: 20px;
+            border-radius: 18px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+          "
+        >
+          <label
+            style="
+              display: block;
+              font-size: 13px;
+              font-weight: 800;
+              color: #1a73e8;
+              margin-bottom: 15px;
+              text-transform: uppercase;
+            "
+          >
+            <i class="fas fa-calendar-check"></i> 發布設定
+          </label>
+
+          <div class="form-group mb-3 field-news-only">
+            <small style="color: #64748b; font-weight: 700"
+              >發布日期 (Date)</small
+            >
+            <input
+              type="date"
+              id="content-date"
+              class="form-control"
+              style="border-radius: 8px; margin-top: 5px"
+            />
+          </div>
+
+          <div class="form-group mb-3 field-faq-only" style="display: none">
+            <small style="color: #64748b; font-weight: 700"
+              >排序權重 (數字越大越靠前)</small
+            >
+            <input
+              type="number"
+              id="content-sort"
+              class="form-control"
+              value="0"
+              style="border-radius: 8px; margin-top: 5px"
+            />
+          </div>
+
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              background: #f1f5f9;
+              padding: 12px;
+              border-radius: 10px;
+              margin-top: 10px;
+            "
+          >
+            <span style="font-size: 14px; font-weight: 700; color: #475569"
+              >立即發布啟用</span
+            >
+            <label class="switch-ui">
+              <input type="checkbox" id="content-active" checked />
+              <span class="slider-ui round"></span>
+            </label>
+          </div>
+        </div>
+
+        <div
+          style="
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+          "
+        >
+          <button
+            type="submit"
+            class="btn-admin-save"
+            style="
+              width: 100%;
+              padding: 15px;
+              border-radius: 15px;
+              background: #1a73e8;
+              color: white;
+              border: none;
+              font-weight: 800;
+              font-size: 1rem;
+              cursor: pointer;
+              box-shadow: 0 8px 20px rgba(26, 115, 232, 0.3);
+            "
+          >
+            <i class="fas fa-save"></i> 儲存變更並同步前台
+          </button>
+          <button
+            type="button"
+            onclick="window.modalManager.close()"
+            style="
+              width: 100%;
+              padding: 12px;
+              border-radius: 15px;
+              background: #fff;
+              border: 1.5px solid #cbd5e1;
+              color: #64748b;
+              font-weight: 700;
+              cursor: pointer;
+            "
+          >
+            取消編輯
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<style>
+  /* 旗艦版開關樣式 */
+  .switch-ui {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+  }
+  .switch-ui input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider-ui {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: 0.4s;
+    border-radius: 34px;
+  }
+  .slider-ui:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+  input:checked + .slider-ui {
+    background-color: #22c55e;
+  }
+  input:checked + .slider-ui:before {
+    transform: translateX(20px);
+  }
+
+  /* 欄位聚焦效果 */
+  .form-control:focus {
+    border-color: #1a73e8 !important;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
+  }
+
+  /* 二合一顯示邏輯：透過 JS 或 CSS 控制 */
+  .field-news-only,
+  .field-faq-only,
+  .label-news,
+  .label-faq {
+    transition: opacity 0.3s ease;
+  }
+</style>
+
+<script>
+  /**
+   * 深度還原：二合一介面初始化邏輯
+   * 此部分會由 modalManager.open 時傳遞的參數觸發
+   */
+  window.initContentEditor = function (type = "news") {
+    const isNews = type === "news";
+    document.getElementById("content-type").value = type;
+    document.getElementById("content-modal-title").innerText = isNews
+      ? "發布/編輯 最新消息"
+      : "編輯 常見問題 FAQ";
+
+    // 控制顯示隱藏
+    document
+      .querySelectorAll(".field-news-only, .label-news")
+      .forEach((el) => (el.style.display = isNews ? "block" : "none"));
+    document
+      .querySelectorAll(".field-faq-only, .label-faq")
+      .forEach((el) => (el.style.display = isNews ? "none" : "block"));
+  };
+
+  // 提交邏輯
+  document
+    .getElementById("admin-content-form")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+      if (window.adminContentModule) {
+        await window.adminContentModule.saveContent();
+      }
+    });
+</script>

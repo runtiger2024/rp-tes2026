@@ -1,0 +1,393 @@
+<div
+  class="modal-content animate-pop-in"
+  style="
+    width: 600px;
+    max-width: 95%;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  "
+>
+  <div
+    class="modal-header"
+    style="background: #1e293b; color: white; padding: 20px 25px"
+  >
+    <h3
+      style="
+        margin: 0;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      "
+    >
+      <i class="fas fa-user-cog"></i>
+      <span>會員權限與財務管理</span>
+    </h3>
+    <button
+      class="modal-close"
+      onclick="window.modalManager.close()"
+      style="
+        color: white;
+        opacity: 0.8;
+        background: transparent;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+      "
+    >
+      &times;
+    </button>
+  </div>
+
+  <form
+    id="admin-member-form"
+    class="modal-body"
+    style="padding: 25px; background: #f8fafc"
+  >
+    <input type="hidden" id="m-id" />
+
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        background: #fff;
+        padding: 15px 20px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+      "
+    >
+      <div>
+        <div
+          id="m-display-name"
+          style="font-size: 1.2rem; font-weight: 900; color: #1e293b"
+        >
+          載入中...
+        </div>
+        <div
+          style="
+            font-family: monospace;
+            color: #94a3b8;
+            font-size: 12px;
+            margin-top: 4px;
+          "
+        >
+          Piggy ID:
+          <span id="m-display-piggyId" style="color: #1a73e8; font-weight: 700"
+            >--</span
+          >
+        </div>
+      </div>
+      <div id="m-role-badge"></div>
+    </div>
+
+    <div
+      class="admin-section-card"
+      style="
+        background: #fff;
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 20px;
+      "
+    >
+      <label
+        style="
+          display: block;
+          font-size: 13px;
+          font-weight: 800;
+          color: #64748b;
+          margin-bottom: 15px;
+          text-transform: uppercase;
+        "
+      >
+        <i class="fas fa-id-card"></i> 基本聯絡資訊
+      </label>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
+        <div class="form-group">
+          <label
+            style="
+              display: block;
+              margin-bottom: 8px;
+              font-size: 13px;
+              font-weight: 600;
+              color: #475569;
+            "
+            >真實姓名</label
+          >
+          <input
+            type="text"
+            id="m-name"
+            class="form-control"
+            required
+            style="border-radius: 10px"
+          />
+        </div>
+        <div class="form-group">
+          <label
+            style="
+              display: block;
+              margin-bottom: 8px;
+              font-size: 13px;
+              font-weight: 600;
+              color: #475569;
+            "
+            >聯繫電話</label
+          >
+          <input
+            type="tel"
+            id="m-phone"
+            class="form-control"
+            style="border-radius: 10px"
+          />
+        </div>
+      </div>
+      <div class="form-group" style="margin-top: 15px">
+        <label
+          style="
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+          "
+          >電子郵件 (帳號)</label
+        >
+        <input
+          type="email"
+          id="m-email"
+          class="form-control"
+          readonly
+          style="
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+          "
+        />
+      </div>
+    </div>
+
+    <div
+      class="admin-section-card"
+      style="
+        background: #fff;
+        padding: 20px;
+        border-radius: 16px;
+        border: 2px solid #eef2ff;
+        margin-bottom: 20px;
+      "
+    >
+      <label
+        style="
+          display: block;
+          font-size: 13px;
+          font-weight: 800;
+          color: #4f46e5;
+          margin-bottom: 15px;
+          text-transform: uppercase;
+        "
+      >
+        <i class="fas fa-wallet"></i> 錢包餘額手動調帳
+      </label>
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 15px;
+          background: #f5f3ff;
+          padding: 10px 15px;
+          border-radius: 10px;
+        "
+      >
+        <span style="color: #4338ca; font-weight: 700">當前可用餘額</span>
+        <span style="font-size: 1.25rem; font-weight: 900; color: #1e293b"
+          >NT$ <span id="m-balance">0</span></span
+        >
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 12px">
+        <div class="form-group">
+          <label
+            style="
+              display: block;
+              margin-bottom: 8px;
+              font-size: 12px;
+              font-weight: 700;
+              color: #475569;
+            "
+            >調整金額 (TWD)</label
+          >
+          <input
+            type="number"
+            id="m-adj-amount"
+            class="form-control"
+            placeholder="例: 100 或 -100"
+            style="
+              border: 1.5px solid #c7d2fe;
+              border-radius: 10px;
+              font-weight: 800;
+            "
+          />
+        </div>
+        <div class="form-group">
+          <label
+            style="
+              display: block;
+              margin-bottom: 8px;
+              font-size: 12px;
+              font-weight: 700;
+              color: #475569;
+            "
+            >調帳備註 (必填，將顯示於用戶明細)</label
+          >
+          <input
+            type="text"
+            id="m-adj-reason"
+            class="form-control"
+            placeholder="輸入補償、退款或扣款原因"
+            style="border: 1.5px solid #c7d2fe; border-radius: 10px"
+          />
+        </div>
+      </div>
+      <p style="font-size: 11px; color: #94a3b8; margin-top: 10px">
+        <i class="fas fa-exclamation-triangle"></i>
+        手動調帳會立即影響用戶餘額，請謹慎操作並留存對帳紀錄。
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
+      <div class="form-group">
+        <label
+          style="
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+          "
+          >系統角色</label
+        >
+        <select
+          id="m-role"
+          class="form-control"
+          style="border-radius: 10px; font-weight: 700"
+        >
+          <option value="USER">一般會員</option>
+          <option value="ADMIN">管理員 (Admin)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label
+          style="
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+          "
+          >帳號狀態</label
+        >
+        <select
+          id="m-status"
+          class="form-control"
+          style="border-radius: 10px; font-weight: 700"
+        >
+          <option value="ACTIVE">✅ 正常運作 (Active)</option>
+          <option value="LOCKED">🔒 鎖定中 (Locked)</option>
+        </select>
+      </div>
+    </div>
+
+    <div
+      class="modal-footer"
+      style="
+        padding-top: 25px;
+        margin-top: 20px;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        gap: 15px;
+      "
+    >
+      <button
+        type="button"
+        class="btn btn-secondary"
+        onclick="window.modalManager.close()"
+        style="
+          flex: 1;
+          padding: 12px;
+          border-radius: 12px;
+          font-weight: 700;
+          background: #fff;
+          border: 1px solid #cbd5e1;
+          color: #64748b;
+          cursor: pointer;
+        "
+      >
+        取消返回
+      </button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        style="
+          flex: 2;
+          padding: 12px;
+          border-radius: 12px;
+          font-weight: 800;
+          background: #1e293b;
+          color: #fff;
+          border: none;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          cursor: pointer;
+        "
+      >
+        <i class="fas fa-user-check"></i> 更新會員資訊與財務數據
+      </button>
+    </div>
+  </form>
+</div>
+
+<style>
+  /* 針對管理端彈窗欄位的聚焦樣式 */
+  .form-control:focus {
+    border-color: #4f46e5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+  .admin-section-card {
+    transition: transform 0.2s;
+  }
+  .admin-section-card:hover {
+    transform: translateY(-2px);
+  }
+</style>
+
+<script>
+  /**
+   * 深度還原：管理端提交邏輯
+   * 對接 assets/js/api/admin.api.js 中的會員更新與調帳 API
+   */
+  document
+    .getElementById("admin-member-form")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const adjAmount = parseFloat(
+        document.getElementById("m-adj-amount").value || 0
+      );
+      const adjReason = document.getElementById("m-adj-reason").value.trim();
+
+      if (adjAmount !== 0 && !adjReason) {
+        alert("進行調帳時，必須填寫調帳備註原因！");
+        return;
+      }
+
+      // 呼叫後台管理模組進行儲存
+      if (window.adminUserModule && window.adminUserModule.updateMember) {
+        await window.adminUserModule.updateMember();
+      }
+    });
+</script>

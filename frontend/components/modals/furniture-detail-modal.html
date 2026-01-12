@@ -1,0 +1,564 @@
+<div
+  class="modal-content modal-lg animate-pop-in"
+  style="
+    width: 900px;
+    max-width: 95%;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+  "
+>
+  <div
+    class="modal-header"
+    style="
+      background: linear-gradient(135deg, #0747a6 0%, #1a73e8 100%);
+      color: white;
+      padding: 25px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    "
+  >
+    <div>
+      <h3
+        style="
+          margin: 0;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        "
+      >
+        <i class="fas fa-couch"></i>
+        <span>家具代採購需求審核</span>
+      </h3>
+      <div
+        style="
+          margin-top: 5px;
+          opacity: 0.8;
+          font-size: 13px;
+          font-family: monospace;
+        "
+      >
+        Order ID: <span id="f-display-id" style="font-weight: 700">--</span>
+      </div>
+    </div>
+    <button
+      class="modal-close"
+      onclick="window.modalManager.close()"
+      style="
+        color: white;
+        opacity: 0.8;
+        background: transparent;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+      "
+    >
+      &times;
+    </button>
+  </div>
+
+  <form
+    id="admin-furniture-form"
+    class="modal-body"
+    style="
+      padding: 30px;
+      background: #f8fafc;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 25px;
+    "
+  >
+    <input type="hidden" id="f-id" />
+
+    <div class="f-modal-left">
+      <div
+        class="admin-section-card"
+        style="
+          background: #fff;
+          padding: 20px;
+          border-radius: 18px;
+          border: 1px solid #e2e8f0;
+          margin-bottom: 20px;
+        "
+      >
+        <label
+          style="
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: #1a73e8;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+          "
+          >需求發起人 (Client Info)</label
+        >
+        <div style="display: flex; align-items: center; gap: 15px">
+          <div
+            style="
+              width: 45px;
+              height: 45px;
+              background: #eff6ff;
+              color: #1a73e8;
+              border-radius: 12px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 1.2rem;
+            "
+          >
+            <i class="fas fa-user"></i>
+          </div>
+          <div>
+            <div id="f-user-email" style="font-weight: 800; color: #1e293b">
+              --
+            </div>
+            <div
+              id="f-user-id"
+              style="font-size: 12px; color: #94a3b8; font-family: monospace"
+            >
+              Piggy ID: --
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="admin-section-card"
+        style="
+          background: #fff;
+          padding: 20px;
+          border-radius: 18px;
+          border: 1px solid #e2e8f0;
+          margin-bottom: 20px;
+        "
+      >
+        <label
+          style="
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: #1a73e8;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+          "
+          >商品採購細節 (Product Details)</label
+        >
+        <div class="form-group mb-3">
+          <small style="color: #64748b; font-weight: 700"
+            >商品名稱 / 規格型號</small
+          >
+          <input
+            type="text"
+            id="f-productName"
+            class="form-control"
+            readonly
+            style="background: #fcfdfe; border-radius: 10px; font-weight: 700"
+          />
+        </div>
+        <div class="form-group mb-3">
+          <small style="color: #64748b; font-weight: 700"
+            >工廠名稱 (賣家)</small
+          >
+          <input
+            type="text"
+            id="f-factoryName"
+            class="form-control"
+            style="border-radius: 10px"
+          />
+        </div>
+        <div class="form-group">
+          <small style="color: #64748b; font-weight: 700"
+            >商品網址 (點擊圖標跳轉)</small
+          >
+          <div style="display: flex; gap: 8px">
+            <input
+              type="url"
+              id="f-productUrl"
+              class="form-control"
+              style="border-radius: 10px; font-size: 13px"
+            />
+            <button
+              type="button"
+              onclick="window.open(document.getElementById('f-productUrl').value, '_blank')"
+              style="
+                background: #eff6ff;
+                color: #1a73e8;
+                border: 1px solid #dbeafe;
+                border-radius: 10px;
+                width: 45px;
+                cursor: pointer;
+              "
+            >
+              <i class="fas fa-external-link-alt"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="admin-section-card"
+        style="
+          background: #fff;
+          padding: 20px;
+          border-radius: 18px;
+          border: 1px solid #e2e8f0;
+        "
+      >
+        <label
+          style="
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: #1a73e8;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+          "
+          >用戶上傳截圖</label
+        >
+        <div
+          id="f-image-gallery"
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+          "
+        ></div>
+      </div>
+    </div>
+
+    <div class="f-modal-right">
+      <div
+        class="admin-section-card highlight-pricing"
+        style="
+          background: #fff;
+          padding: 20px;
+          border-radius: 18px;
+          border: 2px solid #1a73e8;
+          margin-bottom: 20px;
+          position: relative;
+        "
+      >
+        <div
+          style="
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: #1a73e8;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 50px;
+          "
+        >
+          報價精算區
+        </div>
+
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+          "
+        >
+          <div class="form-group">
+            <label
+              style="
+                display: block;
+                font-size: 12px;
+                font-weight: 700;
+                color: #475569;
+                margin-bottom: 5px;
+              "
+              >商品單價 (RMB)</label
+            >
+            <input
+              type="number"
+              id="f-priceRMB"
+              class="form-control"
+              step="0.01"
+              style="border-radius: 10px; font-weight: 800; color: #1a73e8"
+            />
+          </div>
+          <div class="form-group">
+            <label
+              style="
+                display: block;
+                font-size: 12px;
+                font-weight: 700;
+                color: #475569;
+                margin-bottom: 5px;
+              "
+              >當前匯率</label
+            >
+            <input
+              type="number"
+              id="f-exchangeRate"
+              class="form-control"
+              step="0.001"
+              style="border-radius: 10px; font-weight: 800"
+            />
+          </div>
+        </div>
+
+        <div
+          style="
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <span style="font-size: 13px; color: #64748b; font-weight: 700"
+              >換算商品總額 (TWD)</span
+            >
+            <span style="font-size: 1.2rem; font-weight: 900; color: #1e293b"
+              >$ <span id="f-priceTWD-display">0</span></span
+            >
+          </div>
+          <input type="hidden" id="f-priceTWD" />
+        </div>
+
+        <div class="form-group mb-3">
+          <label
+            style="
+              display: block;
+              font-size: 12px;
+              font-weight: 700;
+              color: #475569;
+              margin-bottom: 5px;
+            "
+            >預估國際運費 (TWD)</label
+          >
+          <input
+            type="number"
+            id="f-shippingFee"
+            class="form-control"
+            style="border-radius: 10px"
+          />
+        </div>
+
+        <div class="form-group mb-3">
+          <label
+            style="
+              display: block;
+              font-size: 12px;
+              font-weight: 700;
+              color: #475569;
+              margin-bottom: 5px;
+            "
+            >代購服務費 / 木架費 (TWD)</label
+          >
+          <input
+            type="number"
+            id="f-serviceFee"
+            class="form-control"
+            style="border-radius: 10px"
+          />
+        </div>
+
+        <div
+          style="
+            background: #fff1f0;
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid #ffa39e;
+            margin-top: 10px;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <span style="font-weight: 800; color: #cf1322"
+              >應收總計 (Grand Total)</span
+            >
+            <span style="font-size: 1.6rem; font-weight: 950; color: #d32f2f"
+              >NT$ <span id="f-totalPrice-display">0</span></span
+            >
+          </div>
+          <input type="hidden" id="f-totalPrice" />
+        </div>
+      </div>
+
+      <div
+        class="admin-section-card"
+        style="
+          background: #fff;
+          padding: 20px;
+          border-radius: 18px;
+          border: 1px solid #e2e8f0;
+          margin-bottom: 20px;
+        "
+      >
+        <div class="form-group mb-3">
+          <label
+            style="
+              display: block;
+              font-size: 12px;
+              font-weight: 700;
+              color: #475569;
+              margin-bottom: 8px;
+            "
+            >訂單處理狀態</label
+          >
+          <select
+            id="f-status"
+            class="form-control"
+            style="font-weight: 800; border-radius: 10px"
+          >
+            <option value="PENDING">🕒 待處理/待報價</option>
+            <option value="QUOTED">💰 已報價/等客戶支付</option>
+            <option value="PURCHASING">🛒 採購中/已訂貨</option>
+            <option value="ARRIVED">🏠 已入庫/待集運</option>
+            <option value="COMPLETED">✅ 已完成</option>
+            <option value="CANCELLED">❌ 已取消/駁回</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label
+            style="
+              display: block;
+              font-size: 12px;
+              font-weight: 700;
+              color: #475569;
+              margin-bottom: 8px;
+            "
+            >管理員備註 (客戶可見)</label
+          >
+          <textarea
+            id="f-adminNote"
+            class="form-control"
+            placeholder="請輸入給客戶的報價說明或採購進度..."
+            style="border-radius: 12px; height: 80px; resize: none"
+          ></textarea>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-top: 10px">
+        <button
+          type="button"
+          class="btn-admin-danger"
+          id="btn-f-reject"
+          style="
+            flex: 1;
+            padding: 14px;
+            border-radius: 14px;
+            background: #fff;
+            border: 1.5px solid #ef4444;
+            color: #ef4444;
+            font-weight: 800;
+            cursor: pointer;
+          "
+        >
+          駁回需求
+        </button>
+        <button
+          type="submit"
+          class="btn-admin-save"
+          style="
+            flex: 2;
+            padding: 14px;
+            border-radius: 14px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(26, 115, 232, 0.3);
+          "
+        >
+          更新報價與狀態
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<style>
+  /* 家具報價專用圖片樣式 */
+  .f-thumb-item {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    cursor: zoom-in;
+    transition: transform 0.2s;
+  }
+  .f-thumb-item:hover {
+    transform: scale(1.05);
+  }
+
+  /* 欄位微調 */
+  .form-control:focus {
+    border-color: #1a73e8;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
+  }
+</style>
+
+<script>
+  /**
+   * 深度還原：家具自動計算邏輯 (比照 admin-furniture.js)
+   */
+  const fields = [
+    "f-priceRMB",
+    "f-exchangeRate",
+    "f-shippingFee",
+    "f-serviceFee",
+  ];
+  fields.forEach((id) => {
+    document
+      .getElementById(id)
+      .addEventListener("input", calculateFurnitureTotal);
+  });
+
+  function calculateFurnitureTotal() {
+    const rmb = parseFloat(document.getElementById("f-priceRMB").value || 0);
+    const rate = parseFloat(
+      document.getElementById("f-exchangeRate").value || 0
+    );
+    const ship = parseFloat(
+      document.getElementById("f-shippingFee").value || 0
+    );
+    const service = parseFloat(
+      document.getElementById("f-serviceFee").value || 0
+    );
+
+    const priceTWD = Math.round(rmb * rate);
+    const total = priceTWD + ship + service;
+
+    document.getElementById("f-priceTWD").value = priceTWD;
+    document.getElementById("f-priceTWD-display").innerText =
+      priceTWD.toLocaleString();
+    document.getElementById("f-totalPrice").value = total;
+    document.getElementById("f-totalPrice-display").innerText =
+      total.toLocaleString();
+  }
+
+  /**
+   * 深度還原：提交邏輯
+   */
+  document
+    .getElementById("admin-furniture-form")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+      if (window.adminFurnitureModule) {
+        await window.adminFurnitureModule.updateOrder();
+      }
+    });
+</script>
