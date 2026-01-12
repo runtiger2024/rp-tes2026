@@ -1,12 +1,11 @@
 /**
- * admin/furniture.controller.js - V2026.01.Final_Pro
- * 管理端家具代購核心控制器
- * 整合功能：
- * 1. 訂單清單獲取 (含全域搜尋、分頁、狀態篩選)
- * 2. 訂單詳情查詢 (含用戶資訊與附件圖片)
- * 3. 核心報價邏輯 (核定 RMB 單價、匯率、手續費、產出 TWD 總價)
- * 4. 採購狀態維護 (待報價 -> 已報價 -> 採購中 -> 已到貨)
- * 5. 批次刪除與日誌備註
+ * admin/furniture.controller.js - V2026.01.Final_Pro_Integrated
+ * 管理端家具代購核心控制器 (終極整合版)
+ * 整合重點：
+ * 1. 完整保留 V2026 分頁、搜尋、批次刪除功能。
+ * 2. 引入 V18.1 核心配置抓取邏輯，報價時強制執行「最低服務費 (Min Fee 500)」校驗。
+ * 3. 完美修復 Cloudinary 憑證/發票圖片 HTTPS 轉換邏輯，解決前端破圖。
+ * 4. 強化數值健壯性，防止 NaN 寫入資料庫。
  */
 
 const { ResponseWrapper } = require("../../../utils/response.wrapper");
@@ -74,65 +73,108 @@ const furnitureAdminController = {
 
   /**
    * [PUT] 核心報價邏輯 (Quoting)
-   * 當管理員在後台輸入核定單價與匯率時觸發
+   * 整合功能：自動抓取系統設定，強制執行服務費最低標準
    */
   async quoteOrder(req, res, next) {
     try {
       const { id } = req.params;
-      const { quotedPriceRMB, exchangeRate, serviceFeeTWD, adminNote } =
-        req.body;
+      const { quotedPriceRMB, exchangeRate, adminNote } = req.body;
 
-      // 1. 基本數值校驗
-      const rmb = parseFloat(quotedPriceRMB) || 0;
-      const rate = parseFloat(exchangeRate) || 4.65;
-
-      // 2. 獲取原訂單計算件數
+      // 1. 查找訂單並校驗
       const order = await prisma.furnitureOrder.findUnique({ where: { id } });
       if (!order) return ResponseWrapper.error(res, "訂單不存在", 404);
 
-      // 3. 重新精算 TWD 金額 (確保後端邏輯與前端 UI 計算一致)
-      const productTWD = Math.round(rmb * order.quantity * rate);
-      const finalFee = parseFloat(serviceFeeTWD) || 0; // 通常由管理員核定，或帶入最低 500
-      const totalTWD = productTWD + finalFee;
+      // 2. 獲取系統費率設定 (抓取 furniture_config)
+      const configSetting = await prisma.systemSetting.findUnique({
+        where: { key: "furniture_config" },
+      });
+      let cfg = {
+        exchangeRate: 4.65,
+        serviceFeeRate: 0.05,
+        minServiceFee: 500,
+      };
+      if (configSetting) {
+        const dbVal =
+          typeof configSetting.value === "string"
+            ? JSON.parse(configSetting.value)
+            : configSetting.value;
+        cfg = { ...cfg, ...dbVal };
+      }
 
-      // 4. 更新資料庫並變更狀態為 'QUOTED' (已報價)
+      // 3. 數值預處理
+      const rmb = parseFloat(quotedPriceRMB) || order.priceRMB;
+      const rate = parseFloat(exchangeRate) || cfg.exchangeRate;
+
+      // 4. 精密計算 (整合 V17 最低服務費邏輯)
+      const productTWD = rmb * order.quantity * rate;
+      const rawFeeTWD = productTWD * cfg.serviceFeeRate;
+      const finalFeeTWD = Math.max(rawFeeTWD, cfg.minServiceFee); // 核心優化：守住最低服務費
+      const totalAmountTWD = Math.ceil(productTWD + finalFeeTWD);
+
+      // 5. 處理附件或發票圖片 (解決破圖，強制 HTTPS)
+      let invoiceUrl = req.file ? req.file.path : req.body.invoiceUrl;
+      if (invoiceUrl && typeof invoiceUrl === "string") {
+        invoiceUrl = invoiceUrl.replace("http://", "https://");
+      }
+
+      // 6. 更新資料庫
       const updated = await prisma.furnitureOrder.update({
         where: { id },
         data: {
-          priceRMB: rmb, // 更新為核定價
+          priceRMB: rmb,
           exchangeRate: rate,
-          serviceFee: finalFee,
-          priceTWD: productTWD,
-          totalPriceTWD: totalTWD,
-          status: "QUOTED",
-          adminNote: adminNote || "報價已完成",
-          quotedAt: new Date(),
+          serviceFeeRMB: finalFeeTWD / rate, // 換算回人民幣存檔
+          totalAmountTWD: totalAmountTWD, // 對齊 schema 欄位
+          status: "PAID", // 管理員報價並確認後通常改為已處理或待付款
+          adminRemark: adminNote || "報價已核定",
+          invoiceUrl: invoiceUrl || order.invoiceUrl,
+          updatedAt: new Date(),
         },
       });
 
       logger.info(
-        `[Furniture] Admin ${req.user.id} quoted Order ${id} for TWD ${totalTWD}`
+        `[Furniture] Admin ${req.user.id} quoted Order ${id} - Total: TWD ${totalAmountTWD}`
       );
-      return ResponseWrapper.success(res, updated, "報價成功，已通知客戶查看");
+      return ResponseWrapper.success(
+        res,
+        updated,
+        "訂單報價成功，已更新金額與狀態"
+      );
     } catch (error) {
       next(error);
     }
   },
 
   /**
-   * [PUT] 更新狀態 (Status Management)
-   * 用於報價後的流程跟進：採購中 -> 運輸中 -> 已完結
+   * [PUT] 更新狀態與日誌備註
    */
   async updateStatus(req, res, next) {
     try {
       const { id } = req.params;
       const { status, adminNote } = req.body;
 
-      const updated = await furnitureService.updateStatus(
-        id,
-        status,
-        adminNote
-      );
+      // 處理可能的發票上傳
+      let invoiceUrl = req.file ? req.file.path : undefined;
+      if (invoiceUrl) {
+        invoiceUrl = invoiceUrl.replace("http://", "https://");
+      }
+
+      const updated = await prisma.furnitureOrder.update({
+        where: { id },
+        data: {
+          status,
+          adminRemark: adminNote,
+          ...(invoiceUrl && { invoiceUrl }),
+          updatedAt: new Date(),
+        },
+      });
+
+      // 調用 Service 處理後續通知 (若有封裝)
+      try {
+        await furnitureService.updateStatus(id, status, adminNote);
+      } catch (e) {
+        logger.error(`[Furniture Service Notification Failed] ${e.message}`);
+      }
 
       return ResponseWrapper.success(
         res,
@@ -150,13 +192,17 @@ const furnitureAdminController = {
   async bulkDelete(req, res, next) {
     try {
       const { ids } = req.body;
-      if (!ids || !Array.isArray(ids))
-        return ResponseWrapper.error(res, "參數錯誤", 400);
+      if (!ids || !Array.isArray(ids)) {
+        return ResponseWrapper.error(res, "請提供有效的 ID 陣列", 400);
+      }
 
       const result = await prisma.furnitureOrder.deleteMany({
         where: { id: { in: ids } },
       });
 
+      logger.warn(
+        `[Furniture] Admin ${req.user.id} bulk deleted ${result.count} orders`
+      );
       return ResponseWrapper.success(
         res,
         null,
