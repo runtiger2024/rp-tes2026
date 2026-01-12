@@ -1,28 +1,34 @@
-// backend/src/api/middlewares/error.handler.js
-const errorHandler = (err, req, res, next) => {
-  let error = { ...err };
-  error.message = err.message;
+import { ResponseWrapper } from "../../utils/response.wrapper.js";
+import { logger } from "../../utils/logger.js";
 
-  console.error(`[Error Log] ${err.name}: ${err.message}`);
+export const errorHandler = (err, req, res, next) => {
+  const status = err.status || 500;
+  const message = err.message || "伺服器內部錯誤";
 
-  // Prisma 唯一限制錯誤 (如: Email 已存在)
-  if (err.code === "P2002") {
-    const field = err.meta?.target?.[0] || "欄位";
-    error.message = `該 ${field} 已經被使用，請更換後再試`;
-    error.statusCode = 400;
-  }
-
-  // JWT 錯誤
-  if (err.name === "JsonWebTokenError") {
-    error.message = "無效的登入憑證";
-    error.statusCode = 401;
-  }
-
-  res.status(error.statusCode || 500).json({
-    success: false,
-    message: error.message || "伺服器內部錯誤",
-    stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+  // 記錄錯誤日誌
+  logger.error(`[API Error] ${req.method} ${req.url} - ${message}`, {
+    stack: err.stack,
   });
-};
 
-module.exports = errorHandler;
+  // 針對 Prisma 的特殊錯誤處理 (例如找不到資料)
+  if (err.code === "P2025") {
+    return ResponseWrapper.error(res, "找不到該筆資料", 404, "NOT_FOUND");
+  }
+
+  // 針對 JWT 驗證錯誤
+  if (err.name === "UnauthorizedError" || status === 401) {
+    return ResponseWrapper.error(
+      res,
+      "憑證失效，請重新登入",
+      401,
+      "AUTH_EXPIRED"
+    );
+  }
+
+  return ResponseWrapper.error(
+    res,
+    message,
+    status,
+    err.errorCode || "SYSTEM_ERROR"
+  );
+};
