@@ -155,4 +155,32 @@ const shipmentController = {
   },
 };
 
+// 補回預估運費 API (讓使用者在下單前看到計算明細)
+exports.preview = async (req, res) => {
+  const { packageIds, deliveryLocationRate } = req.body;
+  const packages = await prisma.package.findMany({
+    where: { id: { in: packageIds }, userId: req.user.id },
+  });
+  const calc = await pricingService.calculateSeaFreight(
+    packages,
+    deliveryLocationRate
+  );
+  res.json({ success: true, preview: calc });
+};
+
+// 補回線下支付憑證上傳 (WALLET 以外的支付方式)
+exports.uploadProof = async (req, res) => {
+  if (!req.file)
+    return res.status(400).json({ success: false, message: "請選擇圖片" });
+
+  const shipment = await prisma.shipment.update({
+    where: { id: req.params.id, userId: req.user.id },
+    data: {
+      paymentProof: req.file.path,
+      status: "PAID", // 或等待審核狀態
+    },
+  });
+  res.json({ success: true, shipment });
+};
+
 module.exports = shipmentController;

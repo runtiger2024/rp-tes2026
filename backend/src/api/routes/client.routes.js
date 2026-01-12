@@ -29,4 +29,34 @@ router.post("/shipments/create", shipmentController.create);
 router.get("/wallet/balance", walletController.getMyWallet);
 router.post("/furniture/apply", furnitureController.apply);
 
+// 收件人管理 (完整 CRUD)
+router.get("/recipients", memberController.getMyRecipients);
+router.post("/recipients", memberController.addRecipient);
+router.put("/recipients/:id", memberController.updateRecipient); // 補回
+router.delete("/recipients/:id", memberController.deleteRecipient); // 補回
+
+// 集運單進階操作
+router.get("/shipments", shipmentController.getMyShipments); // 補回清單
+router.get("/shipments/:id", shipmentController.getDetails); // 補回詳情
+router.post("/shipments/preview", shipmentController.preview); // 補回預估
+router.post("/shipments/:id/proof", shipmentController.uploadProof); // 補回憑證上傳
+router.delete("/shipments/:id", shipmentController.cancel); // 補回取消
+
+// 家具代購清單
+router.get("/furniture/my", furnitureController.getMyOrders); // 補回清單
+
+// 靜態內容
+router.get("/content/about", contentController.getAbout); // 補回品牌介紹
+
+// --- 補全後的路由清單 ---
+router.get("/user/recipients", memberController.getMyRecipients);
+router.put("/user/recipients/:id", memberController.updateRecipient); // 遺漏
+router.delete("/user/recipients/:id", memberController.deleteRecipient); // 遺漏
+
+router.post("/shipments/preview", shipmentController.preview); // 遺漏
+router.post("/shipments/:id/proof", shipmentController.uploadProof); // 遺漏
+router.get("/shipments/:id", shipmentController.getDetails); // 遺漏
+
+router.get("/furniture/my", furnitureController.getMyOrders); // 遺漏
+
 module.exports = router;

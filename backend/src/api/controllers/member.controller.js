@@ -75,3 +75,72 @@ exports.getMyRecipients = async (req, res) => {
   });
   res.json({ success: true, recipients });
 };
+// ... 原有 addRecipient ...
+
+exports.updateRecipient = async (req, res) => {
+  const { id } = req.params;
+  const { name, phone, address, idNumber, isDefault } = req.body;
+
+  try {
+    if (isDefault) {
+      await prisma.recipient.updateMany({
+        where: { userId: req.user.id },
+        data: { isDefault: false },
+      });
+    }
+
+    const recipient = await prisma.recipient.update({
+      where: { id, userId: req.user.id },
+      data: { name, phone, address, idNumber, isDefault },
+    });
+
+    res.json({ success: true, recipient });
+  } catch (error) {
+    res.status(400).json({ success: false, message: "更新失敗" });
+  }
+};
+
+exports.deleteRecipient = async (req, res) => {
+  try {
+    await prisma.recipient.delete({
+      where: { id: req.params.id, userId: req.user.id },
+    });
+    res.json({ success: true, message: "已刪除" });
+  } catch (error) {
+    res.status(400).json({ success: false, message: "刪除失敗" });
+  }
+}; // ... 原有 addRecipient ...
+
+exports.updateRecipient = async (req, res) => {
+  const { id } = req.params;
+  const { name, phone, address, idNumber, isDefault } = req.body;
+
+  try {
+    if (isDefault) {
+      await prisma.recipient.updateMany({
+        where: { userId: req.user.id },
+        data: { isDefault: false },
+      });
+    }
+
+    const recipient = await prisma.recipient.update({
+      where: { id, userId: req.user.id },
+      data: { name, phone, address, idNumber, isDefault },
+    });
+
+    res.json({ success: true, recipient });
+  } catch (error) {
+    res.status(400).json({ success: false, message: "更新失敗" });
+  }
+};
+
+exports.deleteRecipient = async (req, res) => {
+  try {
+    await prisma.recipient.delete({
+      where: { id: req.params.id, userId: req.user.id },
+    });
+    res.json({ success: true, message: "已刪除" });
+  } catch (error) {
+    res.status(400).json({ success: false, message: "刪除失敗" });
+  }
+};
