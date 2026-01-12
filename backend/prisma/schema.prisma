@@ -53,7 +53,7 @@ model User {
   coupons             UserCoupon[]
   declarants          Declarant[]
   recipients          Recipient[]      // 常用收件人地址簿
-  furnitureOrders      FurnitureOrder[] // 家具代採購
+  furnitureOrders     FurnitureOrder[] // 家具代採購
   activityLogs        ActivityLog[]
   notifications       Notification[]
 
@@ -113,8 +113,9 @@ model Package {
   productImages     Json          @default("[]") // 客戶預報圖片
   warehousePhotos   String[]      // 倉庫實拍圖片 URL 陣列
 
-  // 狀態
+  // 狀態與子箱
   status            PackageStatus @default(PENDING)
+  boxes             Box[]         // 核心優化：支援一單多箱邏輯
   
   // 關聯集運單
   shipmentId        String?
@@ -126,6 +127,18 @@ model Package {
 
   @@index([userId])
   @@index([status])
+}
+
+model Box {
+  id          String   @id @default(cuid())
+  packageId   String
+  package     Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  weight      Float
+  length      Float
+  width       Float
+  height      Float
+  type        String   @default("general") // 一般家具, 電器等類別
+  createdAt   DateTime @default(now())
 }
 
 enum PackageStatus {
@@ -285,16 +298,16 @@ model FurnitureOrder {
   quantity        Int
   priceRMB        Float
   
-  serviceFeeRMB   Float    
-  exchangeRate    Float    
-  serviceFeeRate  Float    
-  totalAmountTWD  Int      
+  serviceFeeRMB   Float   
+  exchangeRate    Float   
+  serviceFeeRate  Float   
+  totalAmountTWD  Int     
   
   status          String   @default("PENDING") // PENDING, PAID, ORDERED, ARRIVED, COMPLETED
   note            String?  @db.Text
   adminRemark     String?  @db.Text
   refImageUrl     String?  @db.Text
-  invoiceUrl      String?  @db.Text 
+  invoiceUrl      String?  @db.Text
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
