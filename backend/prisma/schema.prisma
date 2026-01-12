@@ -1,6 +1,6 @@
 // backend/prisma/schema.prisma
-// V18.0 - 旗艦級專業物流 ERP 優化版
-// 強化重點：財務事務追蹤、物流分級引擎、報關實名制欄位、多幣別匯率架構
+// V18.1 - 旗艦級專業物流 ERP 終極整合版
+// 整合重點：Express 5 兼容、Prisma 6 引擎、家具代購模組、細緻化報關、財務流水審計、CMS 內容管理
 
 generator client {
   provider = "prisma-client-js"
@@ -24,12 +24,16 @@ model User {
   defaultAddress      String?
   lineUserId          String?  @unique
   role                Role     @default(USER) // USER, ADMIN, WAREHOUSE, FINANCE
-  
+
+  // 發票預設資料 (整合自 V17)
+  defaultTaxId         String?
+  defaultInvoiceTitle String?
+
   // 會員等級 (與 Tier 關聯)
   tierId              String?
   tier                Tier?    @relation(fields: [tierId], references: [id])
 
-  // 財務與點數總覽
+  // 財務與點數總覽 (核心餘額系統)
   balance             Float    @default(0)
   points              Int      @default(0)
 
@@ -41,13 +45,15 @@ model User {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
-  // 關聯
+  // 關聯模組
   packages            Package[]
   shipments           Shipment[]
   transactions        WalletTransaction[]
   pointLogs           PointLog[]
   coupons             UserCoupon[]
   declarants          Declarant[]
+  recipients          Recipient[]      // 常用收件人地址簿
+  furnitureOrders      FurnitureOrder[] // 家具代採購
   activityLogs        ActivityLog[]
   notifications       Notification[]
 
@@ -77,7 +83,7 @@ model Tier {
 }
 
 // ==========================================
-// --- 3. 倉儲與包裹預報系統 ---
+// --- 3. 倉儲與包裹預報系統 (整合 V17 精細欄位) ---
 // ==========================================
 model Package {
   id                String        @id @default(cuid())
@@ -85,11 +91,14 @@ model Package {
   userId            String
   user              User          @relation(fields: [userId], references: [id])
   
-  // 包裹資訊
+  // 包裹資訊 (報關精細欄位)
   itemName          String?       // 物品名稱
   category          String?       // 物品類別
   quantity          Int           @default(1)
-  declaredValue     Float         @default(0) // 申報價值 (用於保險)
+  declaredValue     Float         @default(0) // 申報價值
+  productUrl        String?       @db.Text    // 商品連結 (V17 需求)
+  modelNumber       String?       // 型號 (V17 需求)
+  spec              String?       // 規格 (V17 需求)
   
   // 入庫重量與材積 (由倉庫測量)
   weight            Float?        // 實際重量 (kg)
@@ -99,9 +108,10 @@ model Package {
   volumetricWeight  Float?        // 材積重
   
   // 倉儲資訊
-  warehouseLocation String?       // 倉庫儲位 (如: A-12-3)
+  warehouseLocation String?       // 倉庫儲位
   warehouseNote     String?       @db.Text
-  warehousePhotos   String[]      // 圖片 URL 陣列
+  productImages     Json          @default("[]") // 客戶預報圖片
+  warehousePhotos   String[]      // 倉庫實拍圖片 URL 陣列
 
   // 狀態
   status            PackageStatus @default(PENDING)
@@ -129,11 +139,11 @@ enum PackageStatus {
 }
 
 // ==========================================
-// --- 4. 集運單與物流引擎 ---
+// --- 4. 集運單與物流引擎 (整合 V17 財務/發票欄位) ---
 // ==========================================
 model Shipment {
   id                String         @id @default(cuid())
-  shipmentNo        String         @unique // 系統生成的運單號 SPG...
+  shipmentNo        String         @unique // SPG... 或 MEM...
   userId            String
   user              User           @relation(fields: [userId], references: [id])
   
@@ -145,7 +155,18 @@ model Shipment {
   declarant         Declarant?     @relation(fields: [declarantId], references: [id])
   idCardNumber      String?        // 實名認證身分證字號
   
-  // 物流計算結果
+  // 財務與發票 (V17 核心功能)
+  taxId             String?
+  invoiceTitle      String?
+  invoiceNumber     String?
+  invoiceDate       DateTime?
+  invoiceRandomCode String?
+  invoiceStatus     String?        @default("PENDING")
+
+  // 管理員備註 (V17 用於改價或審核紀錄)
+  adminNote         String?        @db.Text
+  
+  // 物流計算結果快照
   totalWeight       Float          @default(0)
   chargeableWeight  Float          @default(0)
   shippingFee       Float          @default(0)
@@ -157,12 +178,13 @@ model Shipment {
 
   // 物流狀態
   status            ShipmentStatus @default(UNPAID)
-  localCarrier      String?        // 台灣在地物流 (黑貓, 新竹)
+  localCarrier      String?        // 台灣在地物流 (黑貓, 專車)
   localTrackingNo   String?        // 台灣派送單號
 
   // 支付紀錄
   paidAt            DateTime?
   paymentMethod     String?        // WALLET, CREDIT_CARD, POINT_ONLY
+  paymentProof      String?        // 支付憑證圖片網址 (V17 需求)
 
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
@@ -185,7 +207,7 @@ enum ShipmentStatus {
 }
 
 // ==========================================
-// --- 5. 報關人資訊 (EZ WAY 實名制) ---
+// --- 5. 報關與地址簿 (整合常用收件人) ---
 // ==========================================
 model Declarant {
   id           String     @id @default(cuid())
@@ -199,8 +221,23 @@ model Declarant {
   createdAt    DateTime   @default(now())
 }
 
+model Recipient {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  phone       String
+  address     String
+  idNumber    String?
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
 // ==========================================
-// --- 6. 財務交易與錢包流水 ---
+// --- 6. 財務交易與錢包流水 (V18 強化版) ---
 // ==========================================
 model WalletTransaction {
   id            String          @id @default(cuid())
@@ -210,7 +247,8 @@ model WalletTransaction {
   type          TransactionType
   status        TxStatus        @default(COMPLETED)
   description   String?
-  referenceId   String?         // 關聯的運單號或充值單號
+  referenceId   String?         // 關聯的運單號、充值單號或家具訂單號
+  proofImage    String?         // 支付憑證圖片 (V17 線下轉帳需求)
   balanceBefore Float
   balanceAfter  Float
   createdAt     DateTime        @default(now())
@@ -221,6 +259,7 @@ model WalletTransaction {
 enum TransactionType {
   RECHARGE      // 儲值
   PAYMENT       // 支付運費
+  FURNITURE_PAY // 家具支付
   REFUND        // 退款
   ADJUSTMENT    // 手動調帳
 }
@@ -229,10 +268,43 @@ enum TxStatus {
   PENDING
   COMPLETED
   FAILED
+  REJECTED
 }
 
 // ==========================================
-// --- 7. 點數與行銷系統 ---
+// --- 7. 家具代採購系統 (整合自 V17 旗艦版) ---
+// ==========================================
+model FurnitureOrder {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  factoryName     String
+  productName     String
+  productUrl      String?  @db.Text
+  quantity        Int
+  priceRMB        Float
+  
+  serviceFeeRMB   Float    
+  exchangeRate    Float    
+  serviceFeeRate  Float    
+  totalAmountTWD  Int      
+  
+  status          String   @default("PENDING") // PENDING, PAID, ORDERED, ARRIVED, COMPLETED
+  note            String?  @db.Text
+  adminRemark     String?  @db.Text
+  refImageUrl     String?  @db.Text
+  invoiceUrl      String?  @db.Text 
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+// ==========================================
+// --- 8. 點數與行銷系統 ---
 // ==========================================
 model PointLog {
   id          String   @id @default(cuid())
@@ -256,12 +328,13 @@ model UserCoupon {
 }
 
 // ==========================================
-// --- 8. 系統配置與附加服務 ---
+// --- 9. 系統配置與附加服務 ---
 // ==========================================
 model SystemSetting {
   id           String   @id @default(cuid())
-  key          String   @unique // 如: EXCHANGE_RATE, BASE_SHIPPING_FEE
-  value        String
+  key          String   @unique // 如: EXCHANGE_RATE, FURNITURE_CONFIG
+  value        Json     // 改為 Json 以支援 V17 的複雜配置
+  category     String?
   description  String?
   updatedAt    DateTime @updatedAt
 }
@@ -270,13 +343,13 @@ model ShipmentServiceItem {
   id          String   @id @default(cuid())
   name        String   // 服務名稱 (如: 釘木架, 加強打包)
   price       Float    @default(0)
-  unit        String   @default("PIECE") // PIECE, WEIGHT
+  unit        String   @default("PIECE") // PIECE, WEIGHT, SHIPMENT
   isActive    Boolean  @default(true)
   details     ShipmentServiceDetail[]
 }
 
 model ShipmentServiceDetail {
-  id               String              @id @default(cuid())
+  id                String              @id @default(cuid())
   shipmentId       String
   shipment         Shipment            @relation(fields: [shipmentId], references: [id])
   serviceItemId    String
@@ -285,7 +358,40 @@ model ShipmentServiceDetail {
 }
 
 // ==========================================
-// --- 9. 基礎設施 (日誌、通知、消息) ---
+// --- 10. CMS 內容管理 (FAQ、消息、靜態內容) ---
+// ==========================================
+model News {
+  id          String   @id @default(cuid())
+  title       String
+  content     String   @db.Text
+  category    String   @default("GENERAL") // SYSTEM, PROMOTION, HOLIDAY
+  isImportant Boolean  @default(false)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String   @db.Text
+  category  String?  // LOGISTICS, PAYMENT, CUSTOMS, ACCOUNT
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+}
+
+model StaticContent {
+  id        String   @id @default(cuid())
+  key       String   @unique // 如：ABOUT_US, TERMS_OF_SERVICE
+  title     String
+  content   String   @db.Text
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+}
+
+// ==========================================
+// --- 11. 基礎設施 (日誌與通知) ---
 // ==========================================
 model ActivityLog {
   id        String   @id @default(cuid())
@@ -306,16 +412,6 @@ model Notification {
   content   String   @db.Text
   isRead    Boolean  @default(false)
   type      String   @default("SYSTEM") // SYSTEM, SHIPMENT, WALLET
+  link      String?  // 跳轉連結
   createdAt DateTime @default(now())
-}
-
-model News {
-  id          String   @id @default(cuid())
-  title       String
-  content     String   @db.Text
-  category    String   @default("GENERAL")
-  isImportant Boolean  @default(false)
-  isPublished Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 }

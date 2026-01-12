@@ -1,30 +1,32 @@
 {
   "name": "runpiggy-pro-backend",
-  "version": "18.0.0",
-  "description": "小跑豬專業物流 ERP 核心",
+  "version": "18.1.0",
+  "description": "小跑豬專業物流 ERP 旗艦整合版",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
     "db:push": "npx prisma db push",
-    "db:seed": "node prisma/seed.js"
+    "db:seed": "node prisma/seed.js",
+    "build": "prisma generate"
   },
   "dependencies": {
-    "@prisma/client": "^5.0.0",
-    "@sendgrid/mail": "^7.7.0",
-    "axios": "^1.4.0",
-    "bcryptjs": "^2.4.3",
-    "cloudinary": "^1.37.0",
+    "@prisma/client": "6.19.1",
+    "@sendgrid/mail": "^8.1.6",
+    "axios": "^1.7.0",
+    "bcryptjs": "^3.0.0",
+    "cloudinary": "^1.41.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.0",
-    "express": "^4.18.2",
-    "helmet": "^7.0.0",
-    "jsonwebtoken": "^9.0.0",
+    "dotenv": "^17.0.0",
+    "express": "^5.1.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
-    "multer-storage-cloudinary": "^4.0.0"
+    "multer-storage-cloudinary": "^4.0.0",
+    "sharp": "^0.33.2"
   },
   "devDependencies": {
-    "nodemon": "^3.0.0",
-    "prisma": "^5.0.0"
+    "nodemon": "^3.1.0",
+    "prisma": "6.19.1"
   }
 }
